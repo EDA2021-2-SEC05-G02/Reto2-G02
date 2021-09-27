@@ -35,22 +35,46 @@ operación solicitada
 """
 
 def printMenu():
-    print("Bienvenido")
+    print("\nBienvenido")
     print("1- Cargar información en el catálogo")
-    print("2- ")
+    print("2- Req 1: Listar cronológicamente los artistas")
+    print("3- Req 2: Listar cronológicamente las adquisiciones")
+    print("4- Req 3: Clasificar obras de un artista por técnica")
+    print("5- Req 4: Clasificar obras por la nacionalidad de sus creadores")
+    print("6- Req 5: Transportar obras de un departamento")
+    print("7- Req 6: Encontrar los artistas más prolíficos del museo")
+
+# Funciones de inicializacion
+
+def initCatalog():
+    """
+    Inicializa el catalogo del museo MoMA
+    """
+    return controller.initCatalog()
+
+
+def loadData(catalog):
+    """
+    Carga los artistas y obras en el catalogo
+    """
+    controller.loadData(catalog)
+
 
 catalog = None
 
-"""
-Menu principal
-"""
+
+# Menu principal
+
 while True:
     printMenu()
-    inputs = input('Seleccione una opción para continuar\n')
-    if int(inputs[0]) == 1:
+    inputs = int(input('Seleccione una opción para continuar\n'))
+    if inputs == 1:
+        print("Inicializando Catálogo ....")
+        catalog = controller.initCatalog()
         print("Cargando información de los archivos ....")
+        controller.loadData(catalog)
 
-    elif int(inputs[0]) == 2:
+    elif inputs == 2:
         pass
 
     else:
