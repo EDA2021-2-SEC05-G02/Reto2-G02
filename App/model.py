@@ -142,7 +142,7 @@ def addArtist(catalog, artist):
             info[key] = "Unknown"
 
     lt.addLast(catalog['Artists'], info)
-    mp.put(catalog['ArtistsNames'], info['DisplayName'], info)
+    mp.put(catalog['ArtistsNames'], info['DisplayName'].lower(), info)
     addArtistBeginDate(catalog, info)
     
 
@@ -232,7 +232,7 @@ def addArtistWork(catalog, artistId, info):
 
 def addArtworkMedium(catalog, info):
     mediums = catalog['Mediums']
-    artMedium = info['Medium']
+    artMedium = info['Medium'].lower()
     existmedium = mp.contains(mediums, artMedium)
     if existmedium:
         entry = mp.get(mediums, artMedium)
@@ -245,7 +245,7 @@ def addArtworkMedium(catalog, info):
 
 def addArtworkDepartment(catalog, info):
     departments = catalog['Departments']
-    artDepartment = info['Department']
+    artDepartment = info['Department'].lower()
     existdepartment= mp.contains(departments, artDepartment)
     if existdepartment:
         entry = mp.get(departments, artDepartment)
@@ -288,7 +288,7 @@ def newYear(pubyear):
 
 def newMedium (artMedium):
     entry = {'medium': "", "artworks": None}
-    entry['medium'] = artMedium
+    entry['medium'] = artMedium.lower()
     entry['artworks'] = lt.newList('ARRAY_LIST', cmpArtworksByMedium)
     return entry
 
@@ -300,7 +300,7 @@ def newArtistId (id):
 
 def newDepartment (artDepartment):
     entry = {'department': "", "artworks":None}
-    entry['department'] = artDepartment
+    entry['department'] = artDepartment.lower()
     entry['artworks'] = lt.newList('ARRAY_LIST')
     return entry
 
@@ -339,6 +339,24 @@ def getLast(catalog, num):
         lt.addLast(last, element)
     return last
 
+def getArtist(catalog, name):
+    """
+    Req 3
+    """
+    InfoArtist = mp.get(catalog['ArtistsNames'], name)
+    info = None
+    if InfoArtist:
+        info = me.getValue(InfoArtist)
+    return info
+
+def getArtistsArtwork(catalog, id):
+    ltArtist = mp.get(catalog['ArtistsWorks'], id)
+    art = None
+    if ltArtist:
+        art = me.getValue(ltArtist)['artworks']
+    return art
+
+
 # Funciones de laboratorio
 
 def getMedium(catalog, medio):
@@ -346,7 +364,6 @@ def getMedium(catalog, medio):
     art = None
     if ltMedium:
         art = me.getValue(ltMedium)['artworks']
-        print(art)
         qui.sort(art, cmpArtworkByDate)
     return art
 

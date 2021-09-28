@@ -24,6 +24,8 @@ import config as cf
 import sys
 import controller
 from DISClib.ADT import list as lt
+from DISClib.ADT import map as mp
+from DISClib.DataStructures import mapentry as me
 assert cf
 import datetime as dt
 import prettytable
@@ -118,7 +120,9 @@ def PrintReq1 (beginDate, endDate, ArtistasCrono):
 def PrintReq2 ():
     pass
 
-def PrintReq3 ():
+def PrintReq3 (artistInfo):
+    id = artistInfo['ConstituentID']
+
     pass
 
 def PrintReq4 ():
@@ -181,6 +185,14 @@ while True:
     elif inputs == 4:
         #req 3
         artistName= input("Ingrese el nombre de la/el artista: ")
+        artistInfo = controller.getArtist(catalog, artistName.lower())
+        if not artistInfo:
+            print("El artista no se encontro")
+            continue
+
+        id = artistInfo['ConstituentID']
+        artistArt = controller.getArtistsArtwork(catalog, id)
+        
 
     elif inputs == 5:
         #req 4
@@ -198,7 +210,7 @@ while True:
     elif inputs == 8:
         medio = input("Escriba el medio especifico que quiere consultar: ")
         num = int(input("Escriba el número de obras que quiere imprimir: "))
-        ArtworksByMedium = controller.getMedium(catalog, medio)
+        ArtworksByMedium = controller.getMedium(catalog, medio.lower())
         PrintLab5(ArtworksByMedium, num)
 
     else:
