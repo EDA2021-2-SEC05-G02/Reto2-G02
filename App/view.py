@@ -42,13 +42,13 @@ operación solicitada
 def printMenu():
     print("\nBienvenido")
     print("1- Cargar información en el catálogo")
-    print("2- Lab5: las n obras más antiguas para un medio específico")
     # print("2- Req 1: Listar cronológicamente los artistas")
     # print("3- Req 2: Listar cronológicamente las adquisiciones")
     # print("4- Req 3: Clasificar obras de un artista por técnica")
     # print("5- Req 4: Clasificar obras por la nacionalidad de sus creadores")
     # print("6- Req 5: Transportar obras de un departamento")
     # print("7- Req 6: Encontrar los artistas más prolíficos del museo")
+    print("8- Lab5: las n obras más antiguas para un medio específico")
 
 # Funciones de inicializacion
 
@@ -65,7 +65,7 @@ def loadData(catalog):
     """
     controller.loadData(catalog)
 
-# Funciones para la impresión de resultados
+# Funciones para la impresión de tablas
 
 def printArtistTable(artist):
     x = PrettyTable(hrules=prettytable.ALL)
@@ -96,7 +96,7 @@ def printArtworkTable(artwork):
     x._max_width = {"Title":18,"ConstituentID":18, "Medium":18, "Dimensions":18, "URL":15}
 
     for i in lt.iterator(artwork):
-        if i["Date"] == 0:
+        if i["Date"] == 5000:
             x.add_row([ i["ObjectID"], i["Title"], 
                         i["ConstituentID"], i["Medium"], 
                         i["Dimensions"], "Unknown", 
@@ -111,7 +111,24 @@ def printArtworkTable(artwork):
     x.align["Date"] = "r" 
     print(x)
 
+# Funciones para impresion de resultados
+def PrintReq1 (beginDate, endDate, ArtistasCrono):
+    pass
 
+def PrintReq2 ():
+    pass
+
+def PrintReq3 ():
+    pass
+
+def PrintReq4 ():
+    pass
+
+def PrintReq5 ():
+    pass
+
+def PrintReq6 ():
+    pass
 
 # Funciones para el laboratorio
 
@@ -120,7 +137,7 @@ def PrintLab5 (art, num):
         print("Se encontraton",lt.size(art),"obras creadas con el medio ingresado")
         if lt.size(art) > num:
             print("Las", num, "obras mas antiguas son:")
-            antiguas = controller.getLast(art, num)
+            antiguas = controller.getFirst(art, num)
             printArtworkTable(antiguas)
         else:
             print("Las obras creadas con el medio ingresado son:")
@@ -129,12 +146,10 @@ def PrintLab5 (art, num):
     else:
         print("No se encontraton obras.\n")
 
-
-
-
 # Menu principal
 
 catalog = None
+
 while True:
     printMenu()
     inputs = int(input('Seleccione una opción para continuar\n'))
@@ -143,8 +158,44 @@ while True:
         catalog = controller.initCatalog()
         print("Cargando información de los archivos ....")
         controller.loadData(catalog)
+        print('Obras de Arte cargadas:',lt.size(catalog['Artworks']))
+        print('Artistas cargados:',lt.size(catalog['Artists']))
 
     elif inputs == 2:
+        #req 1
+        beginDate = int(input("Ingrese el año inicial: "))
+        endDate = int(input("Ingrese el año final: "))
+        
+    elif inputs == 3:
+        #req 2
+        firstY=int(input("Año incial: "))
+        firstM=int(input("Mes incial: "))
+        firstD=int(input("Dia inicial: "))
+        first=dt.date(firstY,firstM,firstD)
+
+        lastY=int(input("Año final: "))
+        lastM=int(input("Mes final: "))
+        lastD=int(input("Dia final: "))
+        last=dt.date(lastY,lastM,lastD)
+
+    elif inputs == 4:
+        #req 3
+        artistName= input("Ingrese el nombre de la/el artista: ")
+
+    elif inputs == 5:
+        #req 4
+        pass
+
+    elif inputs == 6:
+        #req 5
+        departamento = input("Ingrese el nombre del departamento del museo: ")
+
+    elif inputs == 7:
+        #req 6
+        pass
+
+    #Laboratorio
+    elif inputs == 8:
         medio = input("Escriba el medio especifico que quiere consultar: ")
         num = int(input("Escriba el número de obras que quiere imprimir: "))
         ArtworksByMedium = controller.getMedium(catalog, medio)

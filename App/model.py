@@ -184,7 +184,7 @@ def addArtwork(catalog, artwork):
         
         elif key == 'Date':
             if info[key] == "":
-                info[key] = 0
+                info[key] = 5000
                 continue
             info[key] = int(info[key])
         
@@ -245,7 +245,7 @@ def addArtworkMedium(catalog, info):
 
 def addArtworkDepartment(catalog, info):
     departments = catalog['Departments']
-    artDepartment = info['Medium']
+    artDepartment = info['Department']
     existdepartment= mp.contains(departments, artDepartment)
     if existdepartment:
         entry = mp.get(departments, artDepartment)
@@ -311,8 +311,8 @@ def newDateAcquired (artDate):
     return entry
 
 def newBeginDate (artistDate):
-    entry = {'date': "", "artworks": None}
-    entry['date'] = artistDate
+    entry = {'begindate': "", "artworks": None}
+    entry['begindate'] = artistDate
     entry['artworks'] = lt.newList('ARRAY_LIST', cmpArtworkByDate)
     return entry
 
@@ -339,7 +339,6 @@ def getLast(catalog, num):
         lt.addLast(last, element)
     return last
 
-
 # Funciones de laboratorio
 
 def getMedium(catalog, medio):
@@ -347,10 +346,9 @@ def getMedium(catalog, medio):
     art = None
     if ltMedium:
         art = me.getValue(ltMedium)['artworks']
+        print(art)
         qui.sort(art, cmpArtworkByDate)
     return art
-
-
 
 # Funciones utilizadas para comparar elementos dentro de una lista
 def compareMapArtMedium (medium, entry):

@@ -83,7 +83,6 @@ def getFirst(catalog, num):
     """
     return model.getFirst(catalog, num)
 
-
 # Funciones de laboratorio
 def getMedium(catalog, medio):
     """
