@@ -96,7 +96,7 @@ def printArtworkTable(artwork):
     x._max_width = {"Title":18,"ConstituentID":18, "Medium":18, "Dimensions":18, "URL":15}
 
     for i in lt.iterator(artwork):
-        if i["Date"] == 5000:
+        if i["Date"] == 0:
             x.add_row([ i["ObjectID"], i["Title"], 
                         i["ConstituentID"], i["Medium"], 
                         i["Dimensions"], "Unknown", 
@@ -111,26 +111,30 @@ def printArtworkTable(artwork):
     x.align["Date"] = "r" 
     print(x)
 
+
+
+# Funciones para el laboratorio
+
 def PrintLab5 (art, num):
     if art:
         print("Se encontraton",lt.size(art),"obras creadas con el medio ingresado")
-        print("Las", num, "obras mas antiguas son:")
-        antiguas = controller.getFirst(art, num)
-        printArtworkTable(antiguas)
+        if lt.size(art) > num:
+            print("Las", num, "obras mas antiguas son:")
+            antiguas = controller.getLast(art, num)
+            printArtworkTable(antiguas)
+        else:
+            print("Las obras creadas con el medio ingresado son:")
+            printArtworkTable(art)
 
     else:
         print("No se encontraton obras.\n")
 
 
 
-# Funciones para el laboratorio
-
-
-catalog = None
-
 
 # Menu principal
 
+catalog = None
 while True:
     printMenu()
     inputs = int(input('Seleccione una opción para continuar\n'))

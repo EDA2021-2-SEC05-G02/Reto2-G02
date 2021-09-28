@@ -45,30 +45,75 @@ los mismos.
 
 # Construccion de modelos
 def newCatalog():
-    """ Inicializa el catálogo de libros
-    Crea una lista vacia para guardar todos los libros
+    """ 
+    Inicializa el catálogo de libros
+    Crea una lista vacia para guardar todos las obras.
+    Crea una lista vacia para guardar todos los artistas.
     Se crean indices (Maps) por los siguientes criterios:
-    Autores
-    ID libros
-    Tags
-    Año de publicacion
+        -Nombre del artista
+        -Id Artistas 
+        -Medio o técnica con la que se creo la obra.
+        -Año en que se creo la obra.
+        -Fecha de adquisición de la obra.
+        -Departamento al que pertenece la obra
+        -Fecha de nacimiento del artista.
     Retorna el catalogo inicializado.
     """
     catalog = {'Artworks': None,
                'Artists': None,
-               'Mediums': None}
+               'ArtistsNames':None,
+               'ArtistsWorks':None,
+               'Mediums': None,
+               'Years': None,
+               'DatesAcquired': None,
+               'Departments': None,
+               'BeginDates': None}
 
     catalog['Artworks'] = lt.newList('ARRAY_LIST')
     catalog['Artists'] = lt.newList('ARRAY_LIST')
 
-    """
-    Este indice crea un map cuya llave es el Medium de la obra
-    """
-    catalog['Mediums'] = mp.newMap(100,
-                                 maptype='CHAINING',
-                                 loadfactor=2.0,
+    #Este indice crea un map cuya llave es el nombre del artista.
+    catalog['ArtistsNames'] = mp.newMap(800,
+                                   maptype='CHAINING',
+                                   loadfactor=4.0,
+                                   comparefunction=compareArtistByName)
+    
+    #Este indice crea un map cuya llave es el id del artista.
+    catalog['ArtistsWorks'] = mp.newMap(800,
+                                   maptype='CHAINING',
+                                   loadfactor=4.0,
+                                   comparefunction=compareArtistIds)
+
+    #Este indice crea un map cuya llave es el Medium de la obra.
+    catalog['Mediums'] = mp.newMap(41,
+                                 maptype='PROBING',
+                                 loadfactor=0.5,
                                  comparefunction=compareMapArtMedium)
-        
+    
+    #Este indice crea un map cuya llave es el año en el que se creo la obra.
+    catalog['Years'] = mp.newMap(800,
+                                   maptype='CHAINING',
+                                   loadfactor=4.0,
+                                   comparefunction=compareMapYear)
+    
+    #Este indice crea un map cuya llave es la fecha de adquisición de la obra.
+    catalog['DatesAcquired'] = mp.newMap(800,
+                                   maptype='CHAINING',
+                                   loadfactor=4.0,
+                                   comparefunction=compareMapYear)
+    
+    #Este indice crea un map cuya llave es el departamento al que pertenece la obra.
+    catalog['Departments'] = mp.newMap(800,
+                                   maptype='CHAINING',
+                                   loadfactor=4.0,
+                                   comparefunction=compareArtworkByDepartment)
+    
+    #Este indice crea un map cuya llave es la fecha de nacimiento del artista.
+    catalog['BeginDates'] = mp.newMap(800,
+                                   maptype='CHAINING',
+                                   loadfactor=4.0,
+                                   comparefunction=compareMapYear)
+            
     return catalog
 
 
@@ -96,8 +141,10 @@ def addArtist(catalog, artist):
         if info[key] == "":
             info[key] = "Unknown"
 
-
     lt.addLast(catalog['Artists'], info)
+    mp.put(catalog['ArtistsNames'], info['DisplayName'], info)
+    addArtistBeginDate(catalog, info)
+    
 
 def addArtwork(catalog, artwork):
     info ={}
@@ -137,7 +184,7 @@ def addArtwork(catalog, artwork):
         
         elif key == 'Date':
             if info[key] == "":
-                info[key] = 5000
+                info[key] = 0
                 continue
             info[key] = int(info[key])
         
@@ -151,10 +198,37 @@ def addArtwork(catalog, artwork):
         elif info[key] == "":
             info[key] = "Unknown"
     
+    for artist in info["ConstituentID"]:
+        addArtistWork(catalog, artist, info)
     lt.addLast(catalog['Artworks'], info)
-    
-    addArtworkMedium(catalog, info)
 
+    addArtworkMedium(catalog, info)
+    addArtworkYear(catalog, info)
+    addArtworkDepartment(catalog, info)
+    addArtworkDateAcquired(catalog, info)
+
+def addArtworkYear(catalog, info):
+    years = catalog['Years']
+    pubyear = info['Date']
+    existyear = mp.contains(years, pubyear)
+    if existyear:
+        entry = mp.get(years, pubyear)
+        year = me.getValue(entry)
+    else:
+        year = newYear(pubyear)
+        mp.put(years, pubyear, year)
+    lt.addLast(year['artworks'], info)
+
+def addArtistWork(catalog, artistId, info):
+    artists = catalog['ArtistsWorks']
+    existartist = mp.contains(artists, artistId)
+    if existartist:
+        entry = mp.get(artists, artistId)
+        artist = me.getValue(entry)
+    else:
+        artist = newArtistId(artistId)
+        mp.put(artists, artistId, artist)
+    lt.addLast(artist['artworks'], info)
 
 def addArtworkMedium(catalog, info):
     mediums = catalog['Mediums']
@@ -169,12 +243,77 @@ def addArtworkMedium(catalog, info):
 
     lt.addLast(medium['artworks'], info)
 
+def addArtworkDepartment(catalog, info):
+    departments = catalog['Departments']
+    artDepartment = info['Medium']
+    existdepartment= mp.contains(departments, artDepartment)
+    if existdepartment:
+        entry = mp.get(departments, artDepartment)
+        department = me.getValue(entry)
+    else:
+        department = newDepartment(artDepartment)
+        mp.put(departments, artDepartment, department)
+
+    lt.addLast(department['artworks'], info)
+
+def addArtworkDateAcquired (catalog, info):
+    dates = catalog['DatesAcquired']
+    artDate = info['DateAcquired']
+    existdate = mp.contains(dates, artDate)
+    if existdate:
+        entry = mp.get(dates, artDate)
+        date = me.getValue(entry)
+    else:
+        date = newDateAcquired(artDate)
+        mp.put(dates, artDate, date)
+
+def addArtistBeginDate(catalog, info):
+    dates = catalog['BeginDates']
+    artistDate = info['BeginDate']
+    existdate = mp.contains(dates, artistDate)
+    if existdate:
+        entry = mp.get(dates, artistDate)
+        date = me.getValue(entry)
+    else:
+        date = newBeginDate(artistDate)
+        mp.put(dates, artistDate, date)
+
 # Funciones para creacion de datos
+
+def newYear(pubyear):
+    entry = {'date': "", "artworks": None}
+    entry['date'] = pubyear
+    entry['artworks'] = lt.newList('ARRAY_LIST', cmpArtworkByDate)
+    return entry
 
 def newMedium (artMedium):
     entry = {'medium': "", "artworks": None}
     entry['medium'] = artMedium
-    entry['artworks'] = lt.newList('ARRAY_LIST', compareMediums)
+    entry['artworks'] = lt.newList('ARRAY_LIST', cmpArtworksByMedium)
+    return entry
+
+def newArtistId (id):
+    entry = {'id': "", "artworks":None}
+    entry['id'] = id
+    entry['artworks'] = lt.newList('ARRAY_LIST', compareArtistIds)
+    return entry
+
+def newDepartment (artDepartment):
+    entry = {'department': "", "artworks":None}
+    entry['department'] = artDepartment
+    entry['artworks'] = lt.newList('ARRAY_LIST')
+    return entry
+
+def newDateAcquired (artDate):
+    entry = {'date': "", "artworks": None}
+    entry['date'] = artDate
+    entry['artworks'] = lt.newList('ARRAY_LIST', cmpArtworkByDate)
+    return entry
+
+def newBeginDate (artistDate):
+    entry = {'date': "", "artworks": None}
+    entry['date'] = artistDate
+    entry['artworks'] = lt.newList('ARRAY_LIST', cmpArtworkByDate)
     return entry
 
 # Funciones de consulta
@@ -215,25 +354,59 @@ def getMedium(catalog, medio):
 
 # Funciones utilizadas para comparar elementos dentro de una lista
 def compareMapArtMedium (medium, entry):
-    """
-    Compara dos ids de libros, id es un identificador
-    y entry una pareja llave-valor
-    """
-    identry = me.getKey(entry)
-    if (medium == identry):
+    MediumEntry = me.getKey(entry)
+    if (medium == MediumEntry):
         return 0
-    elif (medium > identry):
+    elif (medium > MediumEntry):
         return 1
     else:
         return -1
 
-def compareMediums (medium1, medium2):
-    if (medium1 == medium2):
+def compareMapYear (date, entry):
+    DateEntry = me.getKey(entry)
+    if (date == DateEntry):
         return 0
-    elif (medium1 > medium2):
+    elif (date > DateEntry):
+        return 1
+    else:
+        return 0
+
+def compareArtistIds (id, entry):
+    """
+    Compara dos ids de artistas, id es un identificador
+    y entry una pareja llave-valor
+    """
+    identry = me.getKey(entry)
+    if (int(id) == int(identry)):
+        return 0
+    elif (int(id) > int(identry)):
+        return 1
+    else:
+        return -1 
+
+
+def compareArtistByName(keyname, artist):
+    ArtistEntry = me.getKey(artist)
+    if (keyname.lower() == ArtistEntry):
+        return 0
+    elif (keyname.lower() > ArtistEntry):
         return 1
     else:
         return -1
+
+def compareArtworkByDepartment (department, entry):
+    DepartEntry = me.getKey(entry)
+    if (department.lower() == DepartEntry):
+        return 0
+    elif (department.lower() > DepartEntry):
+        return 1
+    else:
+        return -1
+    
+
+def cmpArtworksByMedium (artwork1, artwork2):
+    return artwork1['Medium'] < artwork2['Medium']
+
 
 def cmpArtworkByDate(artwork1, artwork2): 
     return artwork1['Date'] < artwork2['Date']

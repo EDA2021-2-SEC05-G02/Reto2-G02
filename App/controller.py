@@ -24,7 +24,6 @@ import config as cf
 import model
 import csv
 
-
 """
 El controlador se encarga de mediar entre la vista y el modelo.
 """
@@ -43,26 +42,24 @@ def initCatalog():
 def loadData(catalog):
     """
     Carga los datos de los archivos y cargar los datos en la
-    estructura de datos
+    estructura de datos.
     """
     loadArtist(catalog)
     loadArtwork(catalog)
     
-
 def loadArtwork(catalog):
     """
-    Carga las obras del archivo. Por cada libro se indica al
-    modelo que debe adicionarlo al catalogo.
+    Carga las obras del archivo. Por cada obra se indica al
+    modelo que debe adicionarla al catalogo.
     """
     Artworkfile = cf.data_dir + 'Artworks-utf8-small.csv'
     input_file = csv.DictReader(open(Artworkfile, encoding='utf-8'))
     for artwork in input_file:
         model.addArtwork(catalog, artwork)
 
-
 def loadArtist(catalog):
     """
-    Carga los artistas del archivo. Por cada libro se indica al
+    Carga los artistas del archivo. Por cada artista se indica al
     modelo que debe adicionarlo al catalogo.
     """
     Artistfile = cf.data_dir + 'Artists-utf8-small.csv'
@@ -70,18 +67,27 @@ def loadArtist(catalog):
     for artist in input_file:
         model.addArtist(catalog, artist)
 
-
 # Funciones de ordenamiento
 
 # Funciones de consulta sobre el catálogo
 
 def getLast(catalog, num):
+    """
+    Retorna los ultimos 'num' elementos de una lista.
+    """
     return model.getLast(catalog, num)
 
 def getFirst(catalog, num):
+    """
+    Retorna los primeros 'num' elementos de una lista.
+    """
     return model.getFirst(catalog, num)
 
 
 # Funciones de laboratorio
 def getMedium(catalog, medio):
+    """
+    Retorna la lista de obras que fueron creadas con el 
+    medio dado.
+    """
     return model.getMedium(catalog, medio)
