@@ -120,10 +120,14 @@ def PrintReq1 (beginDate, endDate, ArtistasCrono):
 def PrintReq2 ():
     pass
 
-def PrintReq3 (artistInfo):
-    id = artistInfo['ConstituentID']
+def PrintReq3 (artistArt, mediumTop, size, id, artistName):
+    print("="*15, " Req No. 3 Inputs ", "="*15)
+    print("Examine the work of the artist named: "+artistName+"\n")
+    print("="*15, " Req No. 3 Answer ", "="*15)
+    print(artistName, "with MoMA ID",id, "has",size, "pieces in her/his name at the museum.")
+    if size != 0:
+        print("There are" ,mp.size(artistArt), "different mediums/techniques in her/his work.\n")
 
-    pass
 
 def PrintReq4 ():
     pass
@@ -192,6 +196,10 @@ while True:
 
         id = artistInfo['ConstituentID']
         artistArt = controller.getArtistsArtwork(catalog, id)
+        
+        mediumTop, size = controller.getMediumInfo(artistArt)
+
+        PrintReq3(artistArt, mediumTop, size, id, artistName)
         
 
     elif inputs == 5:

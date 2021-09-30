@@ -143,7 +143,7 @@ def addArtist(catalog, artist):
 
     lt.addLast(catalog['Artists'], info)
     mp.put(catalog['ArtistsNames'], info['DisplayName'].lower(), info)
-    addArtistBeginDate(catalog, info)
+    addArtistBeginDate(catalog['BeginDates'], info)
     
 
 def addArtwork(catalog, artwork):
@@ -199,16 +199,16 @@ def addArtwork(catalog, artwork):
             info[key] = "Unknown"
     
     for artist in info["ConstituentID"]:
-        addArtistWork(catalog, artist, info)
+        addArtistWork(catalog['ArtistsWorks'], artist, info)
     lt.addLast(catalog['Artworks'], info)
 
-    addArtworkMedium(catalog, info)
-    addArtworkYear(catalog, info)
-    addArtworkDepartment(catalog, info)
-    addArtworkDateAcquired(catalog, info)
+    addArtworkMedium(catalog['Mediums'], info)
+    addArtworkYear(catalog['Years'], info)
+    addArtworkDepartment(catalog['Departments'], info)
+    addArtworkDateAcquired(catalog['DatesAcquired'], info)
 
-def addArtworkYear(catalog, info):
-    years = catalog['Years']
+def addArtworkYear(indice, info):
+    years = indice
     pubyear = info['Date']
     existyear = mp.contains(years, pubyear)
     if existyear:
@@ -219,8 +219,21 @@ def addArtworkYear(catalog, info):
         mp.put(years, pubyear, year)
     lt.addLast(year['artworks'], info)
 
-def addArtistWork(catalog, artistId, info):
-    artists = catalog['ArtistsWorks']
+# def addArtistWork(indice, artistId, info):
+#     artists = indice
+#     existartist = mp.contains(artists, artistId)
+#     if existartist:
+#         entry = mp.get(artists, artistId)
+#         artist = me.getValue(entry)
+#     else:
+#         artist = newArtistId(artistId)
+#         mp.put(artists, artistId, artist)
+    
+
+#     lt.addLast(artist['artworks'], info)
+
+def addArtistWork(indice, artistId, info):
+    artists = indice
     existartist = mp.contains(artists, artistId)
     if existartist:
         entry = mp.get(artists, artistId)
@@ -228,10 +241,12 @@ def addArtistWork(catalog, artistId, info):
     else:
         artist = newArtistId(artistId)
         mp.put(artists, artistId, artist)
-    lt.addLast(artist['artworks'], info)
+    
+    addArtworkMedium(artist['mediums'], info)
+    
 
-def addArtworkMedium(catalog, info):
-    mediums = catalog['Mediums']
+def addArtworkMedium(indice, info):
+    mediums = indice
     artMedium = info['Medium'].lower()
     existmedium = mp.contains(mediums, artMedium)
     if existmedium:
@@ -242,9 +257,10 @@ def addArtworkMedium(catalog, info):
         mp.put(mediums, artMedium, medium)
 
     lt.addLast(medium['artworks'], info)
+    medium['size']+=1
 
-def addArtworkDepartment(catalog, info):
-    departments = catalog['Departments']
+def addArtworkDepartment(indice, info):
+    departments = indice
     artDepartment = info['Department'].lower()
     existdepartment= mp.contains(departments, artDepartment)
     if existdepartment:
@@ -256,8 +272,8 @@ def addArtworkDepartment(catalog, info):
 
     lt.addLast(department['artworks'], info)
 
-def addArtworkDateAcquired (catalog, info):
-    dates = catalog['DatesAcquired']
+def addArtworkDateAcquired (indice, info):
+    dates = indice
     artDate = info['DateAcquired']
     existdate = mp.contains(dates, artDate)
     if existdate:
@@ -267,8 +283,8 @@ def addArtworkDateAcquired (catalog, info):
         date = newDateAcquired(artDate)
         mp.put(dates, artDate, date)
 
-def addArtistBeginDate(catalog, info):
-    dates = catalog['BeginDates']
+def addArtistBeginDate(indice, info):
+    dates = indice
     artistDate = info['BeginDate']
     existdate = mp.contains(dates, artistDate)
     if existdate:
@@ -287,16 +303,27 @@ def newYear(pubyear):
     return entry
 
 def newMedium (artMedium):
-    entry = {'medium': "", "artworks": None}
+    entry = {'medium': "", "artworks": None, "size": 0}
     entry['medium'] = artMedium.lower()
     entry['artworks'] = lt.newList('ARRAY_LIST', cmpArtworksByMedium)
     return entry
 
+# def newArtistId (id):
+#     entry = {'id': "", "artworks":None}
+#     entry['id'] = id
+#     entry['artworks'] = lt.newList('ARRAY_LIST', compareArtistIds)
+#     return entry
+
 def newArtistId (id):
-    entry = {'id': "", "artworks":None}
+    entry = {'id': "", "mediums":None}
     entry['id'] = id
-    entry['artworks'] = lt.newList('ARRAY_LIST', compareArtistIds)
+    entry['mediums'] = mp.newMap(41,
+                                 maptype='PROBING',
+                                 loadfactor=0.5,
+                                 comparefunction=compareMapArtMedium)
     return entry
+
+
 
 def newDepartment (artDepartment):
     entry = {'department': "", "artworks":None}
@@ -315,6 +342,7 @@ def newBeginDate (artistDate):
     entry['begindate'] = artistDate
     entry['artworks'] = lt.newList('ARRAY_LIST', cmpArtworkByDate)
     return entry
+
 
 # Funciones de consulta
 def getFirst(catalog, num):
@@ -350,11 +378,37 @@ def getArtist(catalog, name):
     return info
 
 def getArtistsArtwork(catalog, id):
+    """
+    Req 3
+    """
     ltArtist = mp.get(catalog['ArtistsWorks'], id)
     art = None
     if ltArtist:
-        art = me.getValue(ltArtist)['artworks']
+        art = me.getValue(ltArtist)['mediums']
     return art
+
+def getMediumInfo(artistArt):
+    """
+    Req 3
+    """
+    keys = mp.keySet(artistArt)
+
+    top = 0
+    topMedium = None
+    artSize = 0
+
+    for medium in lt.iterator(keys):
+        medio = mp.get(artistArt, medium)["value"]
+        artSize += lt.size(medio["artworks"])
+
+        size = medio["size"]
+
+        if size > top:
+            top = size
+            topMedium = medium
+    
+    return topMedium, artSize
+        
 
 
 # Funciones de laboratorio

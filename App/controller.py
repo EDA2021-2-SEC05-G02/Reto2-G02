@@ -96,6 +96,12 @@ def getArtistsArtwork(catalog, id):
     """
     return model.getArtistsArtwork(catalog, id)
 
+def getMediumInfo(artistArt):
+    """
+    Req 3
+    """
+    return model.getMediumInfo(artistArt)
+
 
 # Funciones de laboratorio
 def getMedium(catalog, medio):
