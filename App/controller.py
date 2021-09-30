@@ -83,25 +83,17 @@ def getFirst(catalog, num):
     """
     return model.getFirst(catalog, num)
 
-
 def getArtist(catalog, name):
     """
     Req 3
     """
     return model.getArtist(catalog, name)
 
-def getArtistsArtwork(catalog, id):
-    """
-    Req 3
-    """
-    return model.getArtistsArtwork(catalog, id)
-
 def getMediumInfo(artistArt):
     """
     Req 3
     """
     return model.getMediumInfo(artistArt)
-
 
 # Funciones de laboratorio
 def getMedium(catalog, medio):

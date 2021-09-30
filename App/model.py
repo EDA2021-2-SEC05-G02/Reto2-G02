@@ -24,7 +24,6 @@
  * Dario Correal - Version inicial
  """
 
-
 import config as cf
 from DISClib.ADT import list as lt
 from DISClib.ADT import map as mp
@@ -44,6 +43,7 @@ los mismos.
 """
 
 # Construccion de modelos
+
 def newCatalog():
     """ 
     Inicializa el catálogo de libros
@@ -116,8 +116,6 @@ def newCatalog():
             
     return catalog
 
-
-
 # Funciones para agregar informacion al catalogo
 
 def addArtist(catalog, artist):
@@ -145,7 +143,6 @@ def addArtist(catalog, artist):
     mp.put(catalog['ArtistsNames'], info['DisplayName'].lower(), info)
     addArtistBeginDate(catalog['BeginDates'], info)
     
-
 def addArtwork(catalog, artwork):
     info ={}
     info["ObjectID"] = int(artwork['ObjectID'])
@@ -219,19 +216,6 @@ def addArtworkYear(indice, info):
         mp.put(years, pubyear, year)
     lt.addLast(year['artworks'], info)
 
-# def addArtistWork(indice, artistId, info):
-#     artists = indice
-#     existartist = mp.contains(artists, artistId)
-#     if existartist:
-#         entry = mp.get(artists, artistId)
-#         artist = me.getValue(entry)
-#     else:
-#         artist = newArtistId(artistId)
-#         mp.put(artists, artistId, artist)
-    
-
-#     lt.addLast(artist['artworks'], info)
-
 def addArtistWork(indice, artistId, info):
     artists = indice
     existartist = mp.contains(artists, artistId)
@@ -244,7 +228,6 @@ def addArtistWork(indice, artistId, info):
     
     addArtworkMedium(artist['mediums'], info)
     
-
 def addArtworkMedium(indice, info):
     mediums = indice
     artMedium = info['Medium'].lower()
@@ -308,12 +291,6 @@ def newMedium (artMedium):
     entry['artworks'] = lt.newList('ARRAY_LIST', cmpArtworksByMedium)
     return entry
 
-# def newArtistId (id):
-#     entry = {'id': "", "artworks":None}
-#     entry['id'] = id
-#     entry['artworks'] = lt.newList('ARRAY_LIST', compareArtistIds)
-#     return entry
-
 def newArtistId (id):
     entry = {'id': "", "mediums":None}
     entry['id'] = id
@@ -322,8 +299,6 @@ def newArtistId (id):
                                  loadfactor=0.5,
                                  comparefunction=compareMapArtMedium)
     return entry
-
-
 
 def newDepartment (artDepartment):
     entry = {'department': "", "artworks":None}
@@ -343,49 +318,35 @@ def newBeginDate (artistDate):
     entry['artworks'] = lt.newList('ARRAY_LIST', cmpArtworkByDate)
     return entry
 
-
-# Funciones de consulta
 def getFirst(catalog, num):
     """
     Retorna los primeros num elementos de una lista
     """
-    first = lt.newList('ARRAY_LIST')
-    rangmax = num +1
-    for i in range(1, rangmax):
-        element = lt.getElement(catalog, i)
-        lt.addLast(first, element)
-    return first
+    lista = lt.subList(catalog, 1, num)
+    return lista
 
 def getLast(catalog, num):
     """
     Retorna los ultimos num elementos de una lista
     """
-    last = lt.newList('ARRAY_LIST')
-    rangmin = num-1
-    for i in range((lt.size(catalog)-rangmin),lt.size(catalog)+1):
-        element = lt.getElement(catalog, i)
-        lt.addLast(last, element)
-    return last
+    lista = lt.subList(catalog, lt.size(catalog)-(num-1), num)
+    return lista
 
 def getArtist(catalog, name):
     """
     Req 3
     """
     InfoArtist = mp.get(catalog['ArtistsNames'], name)
-    info = None
-    if InfoArtist:
-        info = me.getValue(InfoArtist)
-    return info
-
-def getArtistsArtwork(catalog, id):
-    """
-    Req 3
-    """
+    
+    if not InfoArtist:
+        return None
+    info = me.getValue(InfoArtist)
+    id = info['ConstituentID']
     ltArtist = mp.get(catalog['ArtistsWorks'], id)
     art = None
     if ltArtist:
         art = me.getValue(ltArtist)['mediums']
-    return art
+    return art, id
 
 def getMediumInfo(artistArt):
     """
@@ -409,8 +370,6 @@ def getMediumInfo(artistArt):
     
     return topMedium, artSize
         
-
-
 # Funciones de laboratorio
 
 def getMedium(catalog, medio):
@@ -453,7 +412,6 @@ def compareArtistIds (id, entry):
     else:
         return -1 
 
-
 def compareArtistByName(keyname, artist):
     ArtistEntry = me.getKey(artist)
     if (keyname.lower() == ArtistEntry):
@@ -472,10 +430,8 @@ def compareArtworkByDepartment (department, entry):
     else:
         return -1
     
-
 def cmpArtworksByMedium (artwork1, artwork2):
     return artwork1['Medium'] < artwork2['Medium']
-
 
 def cmpArtworkByDate(artwork1, artwork2): 
     return artwork1['Date'] < artwork2['Date']

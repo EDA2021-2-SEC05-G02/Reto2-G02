@@ -32,7 +32,6 @@ import prettytable
 from prettytable import PrettyTable
 import time as tm
 
-
 """
 La vista se encarga de la interacción con el usuario
 Presenta el menu de opciones y por cada seleccion
@@ -60,7 +59,6 @@ def initCatalog():
     """
     return controller.initCatalog()
 
-
 def loadData(catalog):
     """
     Carga los artistas y obras en el catalogo
@@ -69,7 +67,7 @@ def loadData(catalog):
 
 # Funciones para la impresión de tablas
 
-def printArtistTable(artist):
+def printArtistTable(info):
     x = PrettyTable(hrules=prettytable.ALL)
     x.field_names = ["ConstituentID", "DisplayName",
                     "BeginDate", "Nationality", 
@@ -78,7 +76,7 @@ def printArtistTable(artist):
 
     x._max_width = {"DisplayName":18}
 
-    for i in lt.iterator(artist):
+    for i in lt.iterator(info):
         x.add_row([ i["ConstituentID"], i["DisplayName"], 
                     i["BeginDate"], i["Nationality"], 
                     i["Gender"], i["ArtistBio"], 
@@ -88,7 +86,7 @@ def printArtistTable(artist):
     x.align["BeginDate"] = "r"
     print(x)
 
-def printArtworkTable(artwork):
+def printArtworkTable(info):
     x = PrettyTable(hrules=prettytable.ALL)
     x.field_names = ["ObjectID", "Title", 
                     "ConstituentID", "Medium", 
@@ -97,7 +95,7 @@ def printArtworkTable(artwork):
 
     x._max_width = {"Title":18,"ConstituentID":18, "Medium":18, "Dimensions":18, "URL":15}
 
-    for i in lt.iterator(artwork):
+    for i in lt.iterator(info):
         if i["Date"] == 5000:
             x.add_row([ i["ObjectID"], i["Title"], 
                         i["ConstituentID"], i["Medium"], 
@@ -113,6 +111,24 @@ def printArtworkTable(artwork):
     x.align["Date"] = "r" 
     print(x)
 
+def PrintArtistMedium (info):
+    x = PrettyTable(hrules=prettytable.ALL)
+    x.field_names = ["Medium Name", "Count"]
+    keys = mp.keySet(info)
+    for key in lt.iterator(keys):
+        count = mp.get(info, key)['value']['size']
+        x.add_row([key, count])
+    x.sortby = "Count"
+    x.reversesort = True
+    x.align["Medium Name"] = "l"
+    x.align["Count"] = "r"
+    if lt.size(keys) > 5:
+        print("Her/his top 5 Medium/Technique are")
+        print(x.get_string(start=0, end=5))
+    else:
+        print("Her/his Medium/Technique are:")
+        print(x)
+
 # Funciones para impresion de resultados
 def PrintReq1 (beginDate, endDate, ArtistasCrono):
     pass
@@ -127,7 +143,14 @@ def PrintReq3 (artistArt, mediumTop, size, id, artistName):
     print(artistName, "with MoMA ID",id, "has",size, "pieces in her/his name at the museum.")
     if size != 0:
         print("There are" ,mp.size(artistArt), "different mediums/techniques in her/his work.\n")
+        PrintArtistMedium(artistArt)
 
+        numPieces = mp.get(artistArt, mediumTop)['value']['size']
+        print("\nHis/her most used Medium/Technique is:", mediumTop , "with", numPieces, "pieces.")
+        print("The",numPieces,"works of",mediumTop,"from the collection are:")
+
+        mediumList = mp.get(artistArt, mediumTop)['value']['artworks']
+        printArtworkTable(mediumList)
 
 def PrintReq4 ():
     pass
@@ -191,16 +214,15 @@ while True:
         artistName= input("Ingrese el nombre de la/el artista: ")
         artistInfo = controller.getArtist(catalog, artistName.lower())
         if not artistInfo:
-            print("El artista no se encontro")
+            print("El/la artista no se encontro")
+            continue
+        if not artistInfo[0]:
+            print("El/la artista con id", artistInfo[1], "no tiene obras a su nombre")
             continue
 
-        id = artistInfo['ConstituentID']
-        artistArt = controller.getArtistsArtwork(catalog, id)
-        
-        mediumTop, size = controller.getMediumInfo(artistArt)
+        mediumTop, size = controller.getMediumInfo(artistInfo[0])
 
-        PrintReq3(artistArt, mediumTop, size, id, artistName)
-        
+        PrintReq3(artistInfo[0], mediumTop, size, artistInfo[1], artistName)
 
     elif inputs == 5:
         #req 4
@@ -215,6 +237,7 @@ while True:
         pass
 
     #Laboratorio
+
     elif inputs == 8:
         medio = input("Escriba el medio especifico que quiere consultar: ")
         num = int(input("Escriba el número de obras que quiere imprimir: "))
