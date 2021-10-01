@@ -318,23 +318,35 @@ def newBeginDate (artistDate):
     entry['artworks'] = lt.newList('ARRAY_LIST', cmpArtworkByDate)
     return entry
 
-def getFirst(catalog, num):
+def getFirst(lista, num):
     """
     Retorna los primeros num elementos de una lista
     """
-    lista = lt.subList(catalog, 1, num)
+    lista = lt.subList(lista, 1, num)
     return lista
 
-def getLast(catalog, num):
+def getLast(lista, num):
     """
     Retorna los ultimos num elementos de una lista
     """
-    lista = lt.subList(catalog, lt.size(catalog)-(num-1), num)
+    lista = lt.subList(lista, lt.size(lista)-(num-1), num)
     return lista
 
 def getArtist(catalog, name):
     """
     Req 3
+    Busca el nombre que ingresa por parametro en un map cuya llave = nombre del artista, 
+    toma su id y lo busca en un map cuya llave = id del artista.
+
+    param:
+        catalog: Catalgo del museo MoMA
+        name: Nombre del artista a consulta
+
+    return:
+        None: Si no se encontro el artista
+        tuple: 
+            - TAD map: llave = nombre del medio;  valor = Lista de obras que pertenecen a dicho medio 
+            - Int: El id del artista
     """
     InfoArtist = mp.get(catalog['ArtistsNames'], name)
     
@@ -351,6 +363,16 @@ def getArtist(catalog, name):
 def getMediumInfo(artistArt):
     """
     Req 3
+    Por cada medio que existe toma la longitud de la lista de obras y las suma a un contador, 
+    a la par va buscando cual es medio con mas cantidad de obras.
+
+    param:
+        artistArt: TAD map: llave = nombre del medio;  valor = Lista de obras que pertenecen a dicho medio
+
+    return:
+        tuple: 
+            - Str: el medio con mas cantidad de obras 
+            - Int: el numero total de obras
     """
     keys = mp.keySet(artistArt)
 
