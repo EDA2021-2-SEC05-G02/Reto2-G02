@@ -50,6 +50,7 @@ def printMenu():
     # print("6- Req 5: Transportar obras de un departamento")
     # print("7- Req 6: Encontrar los artistas más prolíficos del museo")
     print("8- Lab5: las n obras más antiguas para un medio específico")
+    print("9- Lab6: el número total de obras de una nacionalidad ")
 
 # Funciones de inicializacion
 
@@ -177,6 +178,11 @@ def PrintLab5 (art, num):
     else:
         print("No se encontraton obras.\n")
 
+def PrintLab6 (art):
+    if art:
+        print("Se encontraton",lt.size(art),"obras con la nacionalidad ingresada")
+    else:
+        print("No se encontraton obras.\n")
 # Menu principal
 
 catalog = None
@@ -243,6 +249,11 @@ while True:
         num = int(input("Escriba el número de obras que quiere imprimir: "))
         ArtworksByMedium = controller.getMedium(catalog, medio.lower())
         PrintLab5(ArtworksByMedium, num)
+    
+    elif inputs == 9:
+        nacionalidad = input("Escriba la nacionalidad especifica que quiere consultar: ")
+        ArtworksByNationality = controller.getNationality(catalog, nacionalidad.lower())
+        PrintLab6(ArtworksByNationality)
 
     else:
         sys.exit(0)

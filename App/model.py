@@ -63,11 +63,12 @@ def newCatalog():
                'Artists': None,
                'ArtistsNames':None,
                'ArtistsWorks':None,
-               'Mediums': None,
                'Years': None,
                'DatesAcquired': None,
                'Departments': None,
-               'BeginDates': None}
+               'BeginDates': None,
+               'Mediums': None,
+               'Nationality':None}
 
     catalog['Artworks'] = lt.newList('ARRAY_LIST')
     catalog['Artists'] = lt.newList('ARRAY_LIST')
@@ -79,16 +80,16 @@ def newCatalog():
                                    comparefunction=compareArtistByName)
     
     #Este indice crea un map cuya llave es el id del artista.
+    catalog['ArtistsId'] = mp.newMap(800,
+                                   maptype='CHAINING',
+                                   loadfactor=4.0,
+                                   comparefunction=compareArtistIds)
+    
+    #Este indice crea un map cuya llave es el id del artista.
     catalog['ArtistsWorks'] = mp.newMap(800,
                                    maptype='CHAINING',
                                    loadfactor=4.0,
                                    comparefunction=compareArtistIds)
-
-    #Este indice crea un map cuya llave es el Medium de la obra.
-    catalog['Mediums'] = mp.newMap(41,
-                                 maptype='PROBING',
-                                 loadfactor=0.5,
-                                 comparefunction=compareMapArtMedium)
     
     #Este indice crea un map cuya llave es el año en el que se creo la obra.
     catalog['Years'] = mp.newMap(800,
@@ -113,6 +114,18 @@ def newCatalog():
                                    maptype='CHAINING',
                                    loadfactor=4.0,
                                    comparefunction=compareMapYear)
+    
+    #LAB Este indice crea un map cuya llave es el Medium de la obra.
+    catalog['Mediums'] = mp.newMap(41,
+                                 maptype='CHAINING',
+                                 loadfactor=0.5,
+                                 comparefunction=compareMapArtMedium)
+    
+    #LAB Este indice crea un map cuya llave es el la nacionalidad de la obra.
+    catalog['Nationality'] = mp.newMap(41,
+                                 maptype='CHAINING',
+                                 loadfactor=4.0,
+                                 comparefunction=compareMapArtMedium)
             
     return catalog
 
@@ -136,11 +149,14 @@ def addArtist(catalog, artist):
     info["ULAN"] = artist['ULAN']
 
     for key in info:
+        if key == "Nationality" and info[key] == "":
+            info[key] = "Nationality unknown"
         if info[key] == "":
             info[key] = "Unknown"
 
     lt.addLast(catalog['Artists'], info)
     mp.put(catalog['ArtistsNames'], info['DisplayName'].lower(), info)
+    mp.put(catalog["ArtistsId"], info["ConstituentID"], info)
     addArtistBeginDate(catalog['BeginDates'], info)
     
 def addArtwork(catalog, artwork):
@@ -197,12 +213,13 @@ def addArtwork(catalog, artwork):
     
     for artist in info["ConstituentID"]:
         addArtistWork(catalog['ArtistsWorks'], artist, info)
+        addArtworkNationality(catalog, info, artist) #lab
     lt.addLast(catalog['Artworks'], info)
 
-    addArtworkMedium(catalog['Mediums'], info)
     addArtworkYear(catalog['Years'], info)
     addArtworkDepartment(catalog['Departments'], info)
     addArtworkDateAcquired(catalog['DatesAcquired'], info)
+    addArtworkMedium(catalog['Mediums'], info) # lab
 
 def addArtworkYear(indice, info):
     years = indice
@@ -266,6 +283,8 @@ def addArtworkDateAcquired (indice, info):
         date = newDateAcquired(artDate)
         mp.put(dates, artDate, date)
 
+    lt.addLast(date['artworks'], info)
+
 def addArtistBeginDate(indice, info):
     dates = indice
     artistDate = info['BeginDate']
@@ -276,6 +295,23 @@ def addArtistBeginDate(indice, info):
     else:
         date = newBeginDate(artistDate)
         mp.put(dates, artistDate, date)
+
+def addArtworkNationality (catalog, info, id):
+    nationalities = catalog['Nationality']
+
+    ltArtist = mp.get(catalog['ArtistsId'], id)["value"]   
+    artnationality = ltArtist['Nationality'].lower()
+    
+    existnationality = mp.contains(nationalities, artnationality)
+    if existnationality:
+        entry = mp.get(nationalities, artnationality)
+        nationality = me.getValue(entry)
+    else:
+        nationality = newDateAcquired(artnationality)
+        mp.put(nationalities, artnationality, nationality)
+    lt.addLast(nationality['artworks'], info)
+
+        
 
 # Funciones para creacion de datos
 
@@ -318,6 +354,14 @@ def newBeginDate (artistDate):
     entry['artworks'] = lt.newList('ARRAY_LIST', cmpArtworkByDate)
     return entry
 
+def newNationality(nationality):
+    entry = {'nationality': "", "artworks": None}
+    entry['nationality'] = nationality.lower()
+    entry['artworks'] = lt.newList('ARRAY_LIST', cmpArtworksByNationality)
+    return entry
+
+# Funciones de consulta
+
 def getFirst(lista, num):
     """
     Retorna los primeros num elementos de una lista
@@ -334,17 +378,15 @@ def getLast(lista, num):
 
 def getArtist(catalog, name):
     """
-    Req 3
+    Req 3:
     Busca el nombre que ingresa por parametro en un map cuya llave = nombre del artista, 
     toma su id y lo busca en un map cuya llave = id del artista.
-
     param:
-        catalog: Catalgo del museo MoMA
-        name: Nombre del artista a consulta
-
+        -catalog: Catalgo del museo MoMA
+        -name: Nombre del artista a consulta
     return:
-        None: Si no se encontro el artista
-        tuple: 
+        -None: Si no se encontro el artista
+        -tuple: 
             - TAD map: llave = nombre del medio;  valor = Lista de obras que pertenecen a dicho medio 
             - Int: El id del artista
     """
@@ -367,10 +409,10 @@ def getMediumInfo(artistArt):
     a la par va buscando cual es medio con mas cantidad de obras.
 
     param:
-        artistArt: TAD map: llave = nombre del medio;  valor = Lista de obras que pertenecen a dicho medio
+        -artistArt: TAD map: llave = nombre del medio;  valor = Lista de obras que pertenecen a dicho medio
 
     return:
-        tuple: 
+        -tuple: 
             - Str: el medio con mas cantidad de obras 
             - Int: el numero total de obras
     """
@@ -391,7 +433,8 @@ def getMediumInfo(artistArt):
             topMedium = medium
     
     return topMedium, artSize
-        
+
+
 # Funciones de laboratorio
 
 def getMedium(catalog, medio):
@@ -401,6 +444,14 @@ def getMedium(catalog, medio):
         art = me.getValue(ltMedium)['artworks']
         qui.sort(art, cmpArtworkByDate)
     return art
+
+def getNationality(catalog, nacionalidad):
+    ltNationality = mp.get(catalog['Nationality'], nacionalidad)
+    art = None
+    if ltNationality:
+        art = me.getValue(ltNationality)['artworks']
+    return art
+
 
 # Funciones utilizadas para comparar elementos dentro de una lista
 def compareMapArtMedium (medium, entry):
@@ -454,6 +505,9 @@ def compareArtworkByDepartment (department, entry):
     
 def cmpArtworksByMedium (artwork1, artwork2):
     return artwork1['Medium'] < artwork2['Medium']
+
+def cmpArtworksByNationality (artwork1, artwork2):
+     return artwork1['Nationality'] < artwork2['Nationality']
 
 def cmpArtworkByDate(artwork1, artwork2): 
     return artwork1['Date'] < artwork2['Date']

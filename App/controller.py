@@ -102,3 +102,6 @@ def getMedium(catalog, medio):
     medio dado.
     """
     return model.getMedium(catalog, medio)
+
+def getNationality(catalog, nacionalidad):
+    return model.getNationality(catalog, nacionalidad)
