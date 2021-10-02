@@ -118,13 +118,13 @@ def newCatalog():
     #LAB Este indice crea un map cuya llave es el Medium de la obra.
     catalog['Mediums'] = mp.newMap(41,
                                  maptype='CHAINING',
-                                 loadfactor=0.5,
+                                 loadfactor=1.0,
                                  comparefunction=compareMapArtMedium)
     
     #LAB Este indice crea un map cuya llave es el la nacionalidad de la obra.
     catalog['Nationality'] = mp.newMap(41,
                                  maptype='CHAINING',
-                                 loadfactor=4.0,
+                                 loadfactor=1.0,
                                  comparefunction=compareMapArtMedium)
             
     return catalog
@@ -331,8 +331,8 @@ def newArtistId (id):
     entry = {'id': "", "mediums":None}
     entry['id'] = id
     entry['mediums'] = mp.newMap(41,
-                                 maptype='PROBING',
-                                 loadfactor=0.5,
+                                 maptype='CHAINING',
+                                 loadfactor=1.0,
                                  comparefunction=compareMapArtMedium)
     return entry
 
