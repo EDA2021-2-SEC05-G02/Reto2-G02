@@ -83,6 +83,18 @@ def getFirst(catalog, num):
     """
     return model.getFirst(catalog, num)
 
+def GetElements(valueset):
+    return model.GetElements(valueset)
+
+def GetMoreElements(mapa, beginDate, endDate):
+    return model.GetMoreElements(mapa, beginDate, endDate)
+
+def getCronologicalArtist(indice, beginDate, endDate):
+    """
+    Req 1
+    """
+    return model.getCronologicalArtist(indice, beginDate, endDate)
+
 def getArtist(catalog, name):
     """
     Req 3

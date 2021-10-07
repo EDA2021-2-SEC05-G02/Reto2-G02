@@ -63,7 +63,6 @@ def newCatalog():
                'Artists': None,
                'ArtistsNames':None,
                'ArtistsWorks':None,
-               'Years': None,
                'DatesAcquired': None,
                'Departments': None,
                'BeginDates': None,
@@ -91,16 +90,10 @@ def newCatalog():
                                    loadfactor=4.0,
                                    comparefunction=compareArtistIds)
     
-    #Este indice crea un map cuya llave es el año en el que se creo la obra.
-    catalog['Years'] = mp.newMap(800,
-                                   maptype='CHAINING',
-                                   loadfactor=4.0,
-                                   comparefunction=compareMapYear)
-    
     #Este indice crea un map cuya llave es la fecha de adquisición de la obra.
-    catalog['DatesAcquired'] = mp.newMap(800,
+    catalog['DatesAcquired'] = mp.newMap(435,
                                    maptype='CHAINING',
-                                   loadfactor=4.0,
+                                   loadfactor=8.0,
                                    comparefunction=compareMapYear)
     
     #Este indice crea un map cuya llave es el departamento al que pertenece la obra.
@@ -110,9 +103,9 @@ def newCatalog():
                                    comparefunction=compareArtworkByDepartment)
     
     #Este indice crea un map cuya llave es la fecha de nacimiento del artista.
-    catalog['BeginDates'] = mp.newMap(800,
-                                   maptype='CHAINING',
-                                   loadfactor=4.0,
+    catalog['BeginDates'] = mp.newMap(479,
+                                   maptype='PROBING',
+                                   loadfactor=0.5,
                                    comparefunction=compareMapYear)
     
     #LAB Este indice crea un map cuya llave es el Medium de la obra.
@@ -215,23 +208,9 @@ def addArtwork(catalog, artwork):
         addArtistWork(catalog['ArtistsWorks'], artist, info)
         addArtworkNationality(catalog, info, artist) #lab
     lt.addLast(catalog['Artworks'], info)
-
-    addArtworkYear(catalog['Years'], info)
     addArtworkDepartment(catalog['Departments'], info)
     addArtworkDateAcquired(catalog['DatesAcquired'], info)
     addArtworkMedium(catalog['Mediums'], info) # lab
-
-def addArtworkYear(indice, info):
-    years = indice
-    pubyear = info['Date']
-    existyear = mp.contains(years, pubyear)
-    if existyear:
-        entry = mp.get(years, pubyear)
-        year = me.getValue(entry)
-    else:
-        year = newYear(pubyear)
-        mp.put(years, pubyear, year)
-    lt.addLast(year['artworks'], info)
 
 def addArtistWork(indice, artistId, info):
     artists = indice
@@ -296,6 +275,9 @@ def addArtistBeginDate(indice, info):
         date = newBeginDate(artistDate)
         mp.put(dates, artistDate, date)
 
+    lt.addLast(date['artists'], info)
+    date['size']+=1
+
 def addArtworkNationality (catalog, info, id):
     nationalities = catalog['Nationality']
 
@@ -314,12 +296,6 @@ def addArtworkNationality (catalog, info, id):
         
 
 # Funciones para creacion de datos
-
-def newYear(pubyear):
-    entry = {'date': "", "artworks": None}
-    entry['date'] = pubyear
-    entry['artworks'] = lt.newList('ARRAY_LIST', cmpArtworkByDate)
-    return entry
 
 def newMedium (artMedium):
     entry = {'medium': "", "artworks": None, "size": 0}
@@ -349,9 +325,9 @@ def newDateAcquired (artDate):
     return entry
 
 def newBeginDate (artistDate):
-    entry = {'begindate': "", "artworks": None}
+    entry = {'begindate': "", "artists": None, "size": 0}
     entry['begindate'] = artistDate
-    entry['artworks'] = lt.newList('ARRAY_LIST', cmpArtworkByDate)
+    entry['artists'] = lt.newList('ARRAY_LIST', cmpArtworkByDate)
     return entry
 
 def newNationality(nationality):
@@ -375,6 +351,7 @@ def getLast(lista, num):
     """
     lista = lt.subList(lista, lt.size(lista)-(num-1), num)
     return lista
+
 
 def getArtist(catalog, name):
     """
@@ -433,6 +410,27 @@ def getMediumInfo(artistArt):
             topMedium = medium
     
     return topMedium, artSize
+
+
+def getCronologicalArtist(indice, beginDate, endDate):
+    InRange = mp.newMap(479,
+                        maptype='PROBING',
+                        loadfactor=0.5,
+                        comparefunction=compareMapYear)
+
+    keys = mp.keySet(indice)
+    contador = 0
+
+    for key in lt.iterator(keys):
+        if beginDate <= int(key) and endDate >= int(key):
+            año = mp.get(indice, key)
+            value = me.getValue(año)
+            artistas = value['artists']
+            size = value['size']
+            mp.put(InRange, key, artistas)
+            contador += size
+
+    return InRange, contador
 
 
 # Funciones de laboratorio

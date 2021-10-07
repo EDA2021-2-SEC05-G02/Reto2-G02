@@ -131,8 +131,13 @@ def PrintArtistMedium (info):
         print(x)
 
 # Funciones para impresion de resultados
-def PrintReq1 (beginDate, endDate, ArtistasCrono):
-    pass
+def PrintReq1 (beginDate, endDate, InRange, size):
+    print("="*15, " Req No. 1 Inputs ", "="*15)
+    print("Artist born between" , beginDate, "and" , endDate, "\n")
+    print("="*15, " Req No. 1 Answer ", "="*15)
+    print("There are", size, "artist born between", beginDate, "and" , endDate,"\n")
+    
+
 
 def PrintReq2 ():
     pass
@@ -141,7 +146,7 @@ def PrintReq3 (artistArt, mediumTop, size, id, artistName):
     print("="*15, " Req No. 3 Inputs ", "="*15)
     print("Examine the work of the artist named: "+artistName+"\n")
     print("="*15, " Req No. 3 Answer ", "="*15)
-    print(artistName, "with MoMA ID",id, "has",size, "pieces in her/his name at the museum.")
+    print(artistName, "with MoMA ID",id, "has", size, "pieces in her/his name at the museum.")
     if size != 0:
         print("There are" ,mp.size(artistArt), "different mediums/techniques in her/his work.\n")
         PrintArtistMedium(artistArt)
@@ -202,6 +207,9 @@ while True:
         #req 1
         beginDate = int(input("Ingrese el año inicial: "))
         endDate = int(input("Ingrese el año final: "))
+
+        InRange = controller.getCronologicalArtist(catalog['BeginDates'],beginDate,endDate)
+        PrintReq1(beginDate, endDate, InRange[0], InRange[1])
         
     elif inputs == 3:
         #req 2
