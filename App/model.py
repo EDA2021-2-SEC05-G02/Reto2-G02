@@ -352,6 +352,39 @@ def getLast(lista, num):
     lista = lt.subList(lista, lt.size(lista)-(num-1), num)
     return lista
 
+def getCronologicalArtist(indice, beginDate, endDate):
+    """
+    Req 1:
+    Recorre las llaves del indice de Years (llave=año, valor=lista de artistas)
+    Agrega a un map la pareja llave=año dentro del rango, valor=lista de artistas 
+    param:
+        -indice: Indice de Years 
+        -beginDate: Fecha de nacimiento inicial
+        -endDate: Fecha de nacimiento final
+    return:
+        -tuple: 
+            - TAD map: llave = año dentro del rango;  valor = lista de artistas que nacieron en dicho año 
+            - Int: el total de artistas nacidos en el rango dado
+    """
+    InRange = mp.newMap(479,
+                        maptype='PROBING',
+                        loadfactor=0.5,
+                        comparefunction=compareMapYear)
+
+    keys = mp.keySet(indice)
+    contador = 0
+
+    for key in lt.iterator(keys):
+        if beginDate <= int(key) and endDate >= int(key):
+            año = mp.get(indice, key)
+            value = me.getValue(año)
+            artistas = value['artists']
+            size = value['size']
+            mp.put(InRange, key, artistas)
+            contador += size
+
+    return InRange, contador
+
 
 def getArtist(catalog, name):
     """
@@ -410,27 +443,6 @@ def getMediumInfo(artistArt):
             topMedium = medium
     
     return topMedium, artSize
-
-
-def getCronologicalArtist(indice, beginDate, endDate):
-    InRange = mp.newMap(479,
-                        maptype='PROBING',
-                        loadfactor=0.5,
-                        comparefunction=compareMapYear)
-
-    keys = mp.keySet(indice)
-    contador = 0
-
-    for key in lt.iterator(keys):
-        if beginDate <= int(key) and endDate >= int(key):
-            año = mp.get(indice, key)
-            value = me.getValue(año)
-            artistas = value['artists']
-            size = value['size']
-            mp.put(InRange, key, artistas)
-            contador += size
-
-    return InRange, contador
 
 
 # Funciones de laboratorio

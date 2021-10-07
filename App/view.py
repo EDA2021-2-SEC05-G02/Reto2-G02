@@ -87,6 +87,37 @@ def printArtistTable(info):
     x.align["BeginDate"] = "r"
     print(x)
 
+def printArtistMapTable(info, last):
+    x = PrettyTable(hrules=prettytable.ALL)
+    x.field_names = ["ConstituentID", "DisplayName",
+                    "BeginDate", "Nationality", 
+                    "Gender", "ArtistBio", 
+                    "Wiki QID", "ULAN"]
+
+    x._max_width = {"DisplayName":18}
+    
+    values = mp.valueSet(info)
+    for lista in lt.iterator(values):
+        if lista:
+            for i in lt.iterator(lista):
+                x.add_row([ i["ConstituentID"], i["DisplayName"], 
+                            i["BeginDate"], i["Nationality"], 
+                            i["Gender"], i["ArtistBio"], 
+                            i["Wiki QID"], i["ULAN"]])
+    x.align = "l"
+    x.align["ConstituentID"] = "r"
+    x.align["BeginDate"] = "r"
+    x.sortby = "BeginDate"
+    
+    if last:
+        print(x.get_string(start=0, end=3))
+        x.reversesort = True
+        print("\nThe last 3 artist in the range are...")
+        print(x.get_string(start=0, end=3))
+    else:
+        print(x)
+    
+
 def printArtworkTable(info):
     x = PrettyTable(hrules=prettytable.ALL)
     x.field_names = ["ObjectID", "Title", 
@@ -136,6 +167,13 @@ def PrintReq1 (beginDate, endDate, InRange, size):
     print("Artist born between" , beginDate, "and" , endDate, "\n")
     print("="*15, " Req No. 1 Answer ", "="*15)
     print("There are", size, "artist born between", beginDate, "and" , endDate,"\n")
+    if size !=0:
+        if size >=6:
+            print("The first 3 artist in the range are...")
+            printArtistMapTable(InRange, True)
+        else:
+            print("The artist in the range are...")
+            printArtistMapTable(InRange, False)
     
 
 
