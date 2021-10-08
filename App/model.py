@@ -91,7 +91,7 @@ def newCatalog():
                                    comparefunction=compareArtistIds)
     
     #Este indice crea un map cuya llave es la fecha de adquisición de la obra.
-    catalog['DatesAcquired'] = mp.newMap(5003,
+    catalog['DatesAcquired'] = mp.newMap(5591,
                                    maptype='PROBING',
                                    loadfactor=0.5,
                                    comparefunction=compareMapYear)
@@ -136,8 +136,8 @@ def addArtist(catalog, artist):
     info["ArtistBio"] = artist['ArtistBio']
     info["Nationality"] = artist['Nationality']
     info["Gender"] = artist['Gender']
-    info["BeginDate"] = int(artist['BeginDate'])
-    info["EndDate"] = int(artist['EndDate'])
+    info["BeginDate"] = artist['BeginDate']
+    info["EndDate"] = artist['EndDate']
     info["Wiki QID"] = artist['Wiki QID']
     info["ULAN"] = artist['ULAN']
 
@@ -150,7 +150,7 @@ def addArtist(catalog, artist):
     lt.addLast(catalog['Artists'], info)
     mp.put(catalog['ArtistsNames'], info['DisplayName'].lower(), info)
     mp.put(catalog["ArtistsId"], info["ConstituentID"], info)
-    addArtistBeginDate(catalog['BeginDates'], info)
+    addArtistBeginDate(catalog, info)
     
 def addArtwork(catalog, artwork):
     info ={}
@@ -180,11 +180,8 @@ def addArtwork(catalog, artwork):
     info["Seat Height (cm)"] = artwork['Seat Height (cm)']
     info['Duration (sec.)'] = artwork['Duration (sec.)']
 
-    for key in info:
-        if key == 'DateAcquired':
-            if info[key] == "":
-                info[key] = 0      
-        elif key == 'Date':
+    for key in info:      
+        if key == 'Date':
             if info[key] == "":
                 info[key] = 5000
                 continue
@@ -197,19 +194,19 @@ def addArtwork(catalog, artwork):
                 continue
             info[key] = float(info[key])
 
-        elif info[key] == "":
+        elif info[key] == "" and key != 'DateAcquired':
             info[key] = "Unknown"
     
     for artist in info["ConstituentID"]:
-        addArtistWork(catalog['ArtistsWorks'], artist, info)
+        addArtistWork(catalog, artist, info)
         addArtworkNationality(catalog, info, artist) #lab
     lt.addLast(catalog['Artworks'], info)
-    addArtworkDepartment(catalog['Departments'], info)
+    addArtworkDepartment(catalog, info)
     addArtworkDateAcquired(catalog, info)
-    addArtworkMedium(catalog['Mediums'], info) # lab
+    #addArtworkMedium(catalog, info) # lab
 
-def addArtistWork(indice, artistId, info):
-    artists = indice
+def addArtistWork(catalog, artistId, info):
+    artists = catalog['ArtistsWorks']
     existartist = mp.contains(artists, artistId)
     if existartist:
         entry = mp.get(artists, artistId)
@@ -234,8 +231,8 @@ def addArtworkMedium(indice, info):
     lt.addLast(medium['artworks'], info)
     medium['size']+=1
 
-def addArtworkDepartment(indice, info):
-    departments = indice
+def addArtworkDepartment(catalog, info):
+    departments = catalog['Departments']
     artDepartment = info['Department'].lower()
     existdepartment= mp.contains(departments, artDepartment)
     if existdepartment:
@@ -249,9 +246,12 @@ def addArtworkDepartment(indice, info):
 
 def addArtworkDateAcquired (catalog, info):
     years = catalog['DatesAcquired']
-    pubyear = info['DateAcquired']
-    if pubyear != 0:
+    if (info['DateAcquired'] != ''):
+        pubyear = info['DateAcquired']
+        #pubyear = int((date.fromisoformat(pubyear)).strftime("%Y%m%d%H%M%S"))
         pubyear = int((date.fromisoformat(pubyear)).strftime("%Y%m%d"))
+    elif (info['DateAcquired'] == ''):
+        pubyear = 0
     existyear = mp.contains(years, pubyear)
     if existyear:
         entry = mp.get(years, pubyear)
@@ -259,25 +259,28 @@ def addArtworkDateAcquired (catalog, info):
     else:
         year = newDateAcquired(pubyear)
         mp.put(years, pubyear, year)
-
     lt.addLast(year['artworks'], info)
     year['size'] += 1
 
 
-def addArtistBeginDate(indice, info):
-    dates = indice
-    artistDate = info['BeginDate']
-    existdate = mp.contains(dates, artistDate)
-    if existdate:
-        entry = mp.get(dates, artistDate)
-        date = me.getValue(entry)
+def addArtistBeginDate(catalog, info):
+    years = catalog['BeginDates']
+    if (info['BeginDate'] != ''):
+        pubyear = info['BeginDate']
+        pubyear = int(float(pubyear))
     else:
-        date = newBeginDate(artistDate)
-        mp.put(dates, artistDate, date)
+        pubyear = 2020
+    existyear = mp.contains(years, pubyear)
+    if existyear:
+        entry = mp.get(years, pubyear)
+        year = me.getValue(entry)
+    else:
+        year = newBeginDate(pubyear)
+        mp.put(years, pubyear, year)
+    lt.addLast(year['artists'], info)
+    year['size']+=1
 
-    lt.addLast(date['artists'], info)
-    date['size']+=1
-
+    
 def addArtworkNationality (catalog, info, id):
     nationalities = catalog['Nationality']
 
@@ -291,10 +294,7 @@ def addArtworkNationality (catalog, info, id):
     else:
         nationality = newDateAcquired(artnationality)
         mp.put(nationalities, artnationality, nationality)
-    lt.addLast(nationality['artworks'], info)
-    
-
-        
+    lt.addLast(nationality['artworks'], info)  
 
 # Funciones para creacion de datos
 
@@ -353,46 +353,61 @@ def getLast(lista, num):
     lista = lt.subList(lista, lt.size(lista)-(num-1), num)
     return lista
 
-def getCronologicalArtist(indice, beginDate, endDate):
+def getCronologicalArtist(catalog, beginDate, endDate):
     """
     Req 1:
-    Recorre las llaves del indice de Years (llave=año, valor=lista de artistas)
-    Agrega a un map la pareja llave=año dentro del rango, valor=lista de artistas 
+    Recorre las llaves del indice de BeginDates (llave=año, valor=lista de artistas)
+    Agrega a una lista los artistas nacidos en el rango 
     param:
-        -indice: Indice de Years 
+        -catalog: Catalogo MoMA
         -beginDate: Fecha de nacimiento inicial
         -endDate: Fecha de nacimiento final
     return:
         -tuple: 
-            - TAD map: llave = año dentro del rango;  valor = lista de artistas que nacieron en dicho año 
-            - Int: el total de artistas nacidos en el rango dado
+            - ADT list: lista de artistas que nacieron en el rango de años 
+            - Int: el total de artistas nacidos en el rango dado.
     """
     InRange = lt.newList('ARRAY_LIST')
 
-    keys = mp.keySet(indice)
+    keys = mp.keySet(catalog['BeginDates'])
     contador = 0
 
     for key in lt.iterator(keys):
-        if beginDate <= int(key) and endDate >= int(key):
-            año = mp.get(indice, key)
+        if int(key) >= int(beginDate) and int(key) <= int(endDate):
+            año = mp.get(catalog['BeginDates'], key)
             value = me.getValue(año)
             contador += value['size']
             for artist in lt.iterator(value['artists']):
                 lt.addLast(InRange,artist)
 
-    InRangeSorted = mer.sort(InRange, cmpArtistByBeginDate)
+    InRangeSorted = mer.sort(InRange, cmpArtistByBeginDate)  #n*log(n)
     return InRangeSorted, contador
 
-def getCronologicalArtwork (indice, first, last):
+def getCronologicalArtwork (catalog, first, last):
+    """
+    Req 1:
+    Recorre las llaves del indice de DatesAcquired (llave=año, valor=lista de obras)
+    Agrega a una lista las obras adquiridas en el rango y de esas obras calcula cuantas
+    fueron comradas (purchase).
+    param:
+        -catalog: Catalogo MoMA
+        -first: Fecha de adquisicion inicial
+        -last: Fecha de adquisicion final
+    return:
+        -tuple: 
+            - ADT list: lista de obras adquiridas en el rango de años 
+            - Int: el total de obras adquiridas en el rango dado
+            - Int: el total de obras adquiridas en el rango dado que fueron compradas
+    """
     InRange = lt.newList('ARRAY_LIST')
 
-    keys = mp.keySet(indice)
+    keys = mp.keySet(catalog['DatesAcquired'])
     contador = 0
     purchased = 0
 
     for key in lt.iterator(keys):
-        if first <= key and last >= key:
-            año = mp.get(indice, key)
+        if key >= first and key <= last:
+            año = mp.get(catalog['DatesAcquired'], key)
             value = me.getValue(año)
             contador += value['size']
             for art in lt.iterator(value['artworks']):

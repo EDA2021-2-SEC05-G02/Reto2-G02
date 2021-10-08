@@ -223,7 +223,7 @@ while True:
         beginDate = int(input("Ingrese el año inicial: "))
         endDate = int(input("Ingrese el año final: "))
 
-        InRange = controller.getCronologicalArtist(catalog['BeginDates'],beginDate,endDate)
+        InRange = controller.getCronologicalArtist(catalog,beginDate,endDate)
         PrintReq1(beginDate, endDate, InRange)
         
     elif inputs == 3:
@@ -240,7 +240,7 @@ while True:
         Date2= lastY + "-" + lastM + "-" + lastD
         last = int((date.fromisoformat(Date2)).strftime("%Y%m%d"))
 
-        InRange = controller.getCronologicalArtwork(catalog['DatesAcquired'], first, last)
+        InRange = controller.getCronologicalArtwork(catalog, first, last)
         PrintReq2(Date1, Date2, InRange)
 
     elif inputs == 4:
