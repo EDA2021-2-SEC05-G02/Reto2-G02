@@ -27,7 +27,7 @@ from DISClib.ADT import list as lt
 from DISClib.ADT import map as mp
 from DISClib.DataStructures import mapentry as me
 assert cf
-import datetime as dt
+from datetime import date
 import prettytable
 from prettytable import PrettyTable
 import time as tm
@@ -86,38 +86,7 @@ def printArtistTable(info):
     x.align["ConstituentID"] = "r"
     x.align["BeginDate"] = "r"
     print(x)
-
-def printArtistMapTable(info, last):
-    x = PrettyTable(hrules=prettytable.ALL)
-    x.field_names = ["ConstituentID", "DisplayName",
-                    "BeginDate", "Nationality", 
-                    "Gender", "ArtistBio", 
-                    "Wiki QID", "ULAN"]
-
-    x._max_width = {"DisplayName":18}
-    
-    values = mp.valueSet(info)
-    for lista in lt.iterator(values):
-        if lista:
-            for i in lt.iterator(lista):
-                x.add_row([ i["ConstituentID"], i["DisplayName"], 
-                            i["BeginDate"], i["Nationality"], 
-                            i["Gender"], i["ArtistBio"], 
-                            i["Wiki QID"], i["ULAN"]])
-    x.align = "l"
-    x.align["ConstituentID"] = "r"
-    x.align["BeginDate"] = "r"
-    x.sortby = "BeginDate"
-    
-    if last:
-        print(x.get_string(start=0, end=3))
-        x.reversesort = True
-        print("\nThe last 3 artist in the range are...")
-        print(x.get_string(start=0, end=3))
-    else:
-        print(x)
-    
-
+ 
 def printArtworkTable(info):
     x = PrettyTable(hrules=prettytable.ALL)
     x.field_names = ["ObjectID", "Title", 
@@ -162,23 +131,30 @@ def PrintArtistMedium (info):
         print(x)
 
 # Funciones para impresion de resultados
-def PrintReq1 (beginDate, endDate, InRange, size):
+def PrintReq1 (beginDate, endDate, InRange):
     print("="*15, " Req No. 1 Inputs ", "="*15)
     print("Artist born between" , beginDate, "and" , endDate, "\n")
     print("="*15, " Req No. 1 Answer ", "="*15)
-    print("There are", size, "artist born between", beginDate, "and" , endDate,"\n")
-    if size !=0:
-        if size >=6:
+    print("There are", InRange[1], "artist born between", beginDate, "and" , endDate,"\n")
+    if InRange[1] !=0:
+        if InRange[1] >=6:
             print("The first 3 artist in the range are...")
-            printArtistMapTable(InRange, True)
+            primeros = controller.getFirst(InRange[0], 3)
+            ultimos = controller.getLast(InRange[0], 3)
+            printArtistTable(primeros)
+            print("The last 3 artist in the range are...")
+            printArtistTable(ultimos)
         else:
             print("The artist in the range are...")
-            printArtistMapTable(InRange, False)
+            printArtistTable(InRange[0])
     
+def PrintReq2 (first, last, InRange):
+    print("="*15, " Req No. 2 Inputs ", "="*15)
+    print("Artwork aquired between", first ,"and", last ,"\n")
+    print("="*15, " Req No. 2 Answer ", "="*15)
+    print("The MoMA acquired", InRange[1] ,"unique pieces between", first, "and" , last)
+    print("Of which", InRange[2], "were purchased\n")
 
-
-def PrintReq2 ():
-    pass
 
 def PrintReq3 (artistArt, mediumTop, size, id, artistName):
     print("="*15, " Req No. 3 Inputs ", "="*15)
@@ -226,6 +202,7 @@ def PrintLab6 (art):
         print("Se encontraton",lt.size(art),"obras con la nacionalidad ingresada")
     else:
         print("No se encontraton obras.\n")
+
 # Menu principal
 
 catalog = None
@@ -247,19 +224,24 @@ while True:
         endDate = int(input("Ingrese el año final: "))
 
         InRange = controller.getCronologicalArtist(catalog['BeginDates'],beginDate,endDate)
-        PrintReq1(beginDate, endDate, InRange[0], InRange[1])
+        PrintReq1(beginDate, endDate, InRange)
         
     elif inputs == 3:
         #req 2
-        firstY=int(input("Año incial: "))
-        firstM=int(input("Mes incial: "))
-        firstD=int(input("Dia inicial: "))
-        first=dt.date(firstY,firstM,firstD)
+        firstY=(input("Año incial (AAAA): "))
+        firstM=(input("Mes incial (MM): "))
+        firstD=(input("Dia inicial (DD): "))
+        Date1 = firstY + "-" + firstM + "-" + firstD
+        first = int((date.fromisoformat(Date1)).strftime("%Y%m%d"))
 
-        lastY=int(input("Año final: "))
-        lastM=int(input("Mes final: "))
-        lastD=int(input("Dia final: "))
-        last=dt.date(lastY,lastM,lastD)
+        lastY=(input("Año final (AAAA): "))
+        lastM=(input("Mes final (MM): "))
+        lastD=(input("Dia final (DD): "))
+        Date2= lastY + "-" + lastM + "-" + lastD
+        last = int((date.fromisoformat(Date2)).strftime("%Y%m%d"))
+
+        InRange = controller.getCronologicalArtwork(catalog['DatesAcquired'], first, last)
+        PrintReq2(Date1, Date2, InRange)
 
     elif inputs == 4:
         #req 3

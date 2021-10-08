@@ -33,7 +33,7 @@ from DISClib.Algorithms.Sorting import insertionsort as ins
 from DISClib.Algorithms.Sorting import quicksort as qui
 from DISClib.Algorithms.Sorting import mergesort as mer
 assert cf
-import datetime as dt
+from datetime import date
 import time
 import math
 
@@ -91,9 +91,9 @@ def newCatalog():
                                    comparefunction=compareArtistIds)
     
     #Este indice crea un map cuya llave es la fecha de adquisición de la obra.
-    catalog['DatesAcquired'] = mp.newMap(435,
-                                   maptype='CHAINING',
-                                   loadfactor=8.0,
+    catalog['DatesAcquired'] = mp.newMap(5003,
+                                   maptype='PROBING',
+                                   loadfactor=0.5,
                                    comparefunction=compareMapYear)
     
     #Este indice crea un map cuya llave es el departamento al que pertenece la obra.
@@ -103,7 +103,7 @@ def newCatalog():
                                    comparefunction=compareArtworkByDepartment)
     
     #Este indice crea un map cuya llave es la fecha de nacimiento del artista.
-    catalog['BeginDates'] = mp.newMap(479,
+    catalog['BeginDates'] = mp.newMap(1009,
                                    maptype='PROBING',
                                    loadfactor=0.5,
                                    comparefunction=compareMapYear)
@@ -183,11 +183,7 @@ def addArtwork(catalog, artwork):
     for key in info:
         if key == 'DateAcquired':
             if info[key] == "":
-                info[key] = dt.date.today()
-                continue
-            date = info[key].split("-")
-            info[key]=dt.date(int(date[0]),int(date[1]),int(date[2]))
-        
+                info[key] = 0      
         elif key == 'Date':
             if info[key] == "":
                 info[key] = 5000
@@ -209,7 +205,7 @@ def addArtwork(catalog, artwork):
         addArtworkNationality(catalog, info, artist) #lab
     lt.addLast(catalog['Artworks'], info)
     addArtworkDepartment(catalog['Departments'], info)
-    addArtworkDateAcquired(catalog['DatesAcquired'], info)
+    addArtworkDateAcquired(catalog, info)
     addArtworkMedium(catalog['Mediums'], info) # lab
 
 def addArtistWork(indice, artistId, info):
@@ -251,18 +247,22 @@ def addArtworkDepartment(indice, info):
 
     lt.addLast(department['artworks'], info)
 
-def addArtworkDateAcquired (indice, info):
-    dates = indice
-    artDate = info['DateAcquired']
-    existdate = mp.contains(dates, artDate)
-    if existdate:
-        entry = mp.get(dates, artDate)
-        date = me.getValue(entry)
+def addArtworkDateAcquired (catalog, info):
+    years = catalog['DatesAcquired']
+    pubyear = info['DateAcquired']
+    if pubyear != 0:
+        pubyear = int((date.fromisoformat(pubyear)).strftime("%Y%m%d"))
+    existyear = mp.contains(years, pubyear)
+    if existyear:
+        entry = mp.get(years, pubyear)
+        year = me.getValue(entry)
     else:
-        date = newDateAcquired(artDate)
-        mp.put(dates, artDate, date)
+        year = newDateAcquired(pubyear)
+        mp.put(years, pubyear, year)
 
-    lt.addLast(date['artworks'], info)
+    lt.addLast(year['artworks'], info)
+    year['size'] += 1
+
 
 def addArtistBeginDate(indice, info):
     dates = indice
@@ -292,6 +292,7 @@ def addArtworkNationality (catalog, info, id):
         nationality = newDateAcquired(artnationality)
         mp.put(nationalities, artnationality, nationality)
     lt.addLast(nationality['artworks'], info)
+    
 
         
 
@@ -319,8 +320,8 @@ def newDepartment (artDepartment):
     return entry
 
 def newDateAcquired (artDate):
-    entry = {'date': "", "artworks": None}
-    entry['date'] = artDate
+    entry = {'year': "", "artworks": None, "size": 0}
+    entry['year'] = artDate
     entry['artworks'] = lt.newList('ARRAY_LIST', cmpArtworkByDate)
     return entry
 
@@ -366,10 +367,7 @@ def getCronologicalArtist(indice, beginDate, endDate):
             - TAD map: llave = año dentro del rango;  valor = lista de artistas que nacieron en dicho año 
             - Int: el total de artistas nacidos en el rango dado
     """
-    InRange = mp.newMap(479,
-                        maptype='PROBING',
-                        loadfactor=0.5,
-                        comparefunction=compareMapYear)
+    InRange = lt.newList('ARRAY_LIST')
 
     keys = mp.keySet(indice)
     contador = 0
@@ -378,12 +376,35 @@ def getCronologicalArtist(indice, beginDate, endDate):
         if beginDate <= int(key) and endDate >= int(key):
             año = mp.get(indice, key)
             value = me.getValue(año)
-            artistas = value['artists']
-            size = value['size']
-            mp.put(InRange, key, artistas)
-            contador += size
+            contador += value['size']
+            for artist in lt.iterator(value['artists']):
+                lt.addLast(InRange,artist)
 
-    return InRange, contador
+    InRangeSorted = mer.sort(InRange, cmpArtistByBeginDate)
+    return InRangeSorted, contador
+
+def getCronologicalArtwork (indice, first, last):
+    InRange = lt.newList('ARRAY_LIST')
+
+    keys = mp.keySet(indice)
+    contador = 0
+    purchased = 0
+
+    for key in lt.iterator(keys):
+        if first <= key and last >= key:
+            año = mp.get(indice, key)
+            value = me.getValue(año)
+            contador += value['size']
+            for art in lt.iterator(value['artworks']):
+                if "purchase" in art['CreditLine'].lower():
+                    purchased += 1
+                lt.addLast(InRange,art)
+
+    InRangeSorted = mer.sort(InRange, cmpArtworkByDateAcquired)
+    return InRangeSorted, contador, purchased
+
+
+
 
 
 def getArtist(catalog, name):
@@ -522,4 +543,9 @@ def cmpArtworksByNationality (artwork1, artwork2):
 def cmpArtworkByDate(artwork1, artwork2): 
     return artwork1['Date'] < artwork2['Date']
 
+def cmpArtistByBeginDate(Artist1, Artist2):
+    return (int(Artist1['BeginDate']) < int(Artist2['BeginDate']))
+
+def cmpArtworkByDateAcquired(artwork1, artwork2): 
+    return artwork1['DateAcquired'] < artwork2['DateAcquired']
 # Funciones de ordenamiento

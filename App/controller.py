@@ -89,6 +89,12 @@ def getCronologicalArtist(indice, beginDate, endDate):
     """
     return model.getCronologicalArtist(indice, beginDate, endDate)
 
+def getCronologicalArtwork (indice, first, last):
+    """
+    Req 2
+    """
+    return model.getCronologicalArtwork(indice, first, last)
+
 def getArtist(catalog, name):
     """
     Req 3
