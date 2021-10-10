@@ -33,7 +33,7 @@ from DISClib.Algorithms.Sorting import insertionsort as ins
 from DISClib.Algorithms.Sorting import quicksort as qui
 from DISClib.Algorithms.Sorting import mergesort as mer
 assert cf
-from datetime import date
+import datetime as dt
 import time
 import math
 
@@ -187,6 +187,13 @@ def addArtwork(catalog, artwork):
                 continue
             info[key] = int(info[key])
         
+        elif key == 'DateAcquired':
+            if info[key] == '':
+                info[key] = dt.date.today()
+                continue
+            date = info[key].split("-")
+            info[key] = dt.date(int(date[0]),int(date[1]),int(date[2]))
+        
         elif key == 'Circumference (cm)' or key == 'Depth (cm)' or key == 'Diameter (cm)' \
             or key == 'Height (cm)' or key == 'Length (cm)' or key == 'Weight (kg)' or  key == 'Width (cm)':
             if info[key] == "":
@@ -194,7 +201,7 @@ def addArtwork(catalog, artwork):
                 continue
             info[key] = float(info[key])
 
-        elif info[key] == "" and key != 'DateAcquired':
+        elif info[key] == "":
             info[key] = "Unknown"
     
     for artist in info["ConstituentID"]:
@@ -246,12 +253,7 @@ def addArtworkDepartment(catalog, info):
 
 def addArtworkDateAcquired (catalog, info):
     years = catalog['DatesAcquired']
-    if (info['DateAcquired'] != ''):
-        pubyear = info['DateAcquired']
-        #pubyear = int((date.fromisoformat(pubyear)).strftime("%Y%m%d%H%M%S"))
-        pubyear = int((date.fromisoformat(pubyear)).strftime("%Y%m%d"))
-    elif (info['DateAcquired'] == ''):
-        pubyear = 0
+    pubyear = info['DateAcquired']
     existyear = mp.contains(years, pubyear)
     if existyear:
         entry = mp.get(years, pubyear)
@@ -269,7 +271,7 @@ def addArtistBeginDate(catalog, info):
         pubyear = info['BeginDate']
         pubyear = int(float(pubyear))
     else:
-        pubyear = 2020
+        pubyear = 2021
     existyear = mp.contains(years, pubyear)
     if existyear:
         entry = mp.get(years, pubyear)
@@ -516,7 +518,7 @@ def compareMapYear (date, entry):
     elif (date > DateEntry):
         return 1
     else:
-        return 0
+        return -1
 
 def compareArtistIds (id, entry):
     """

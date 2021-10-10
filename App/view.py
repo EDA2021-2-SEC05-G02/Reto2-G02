@@ -27,7 +27,7 @@ from DISClib.ADT import list as lt
 from DISClib.ADT import map as mp
 from DISClib.DataStructures import mapentry as me
 assert cf
-from datetime import date
+import datetime as dt
 import prettytable
 from prettytable import PrettyTable
 import time as tm
@@ -43,9 +43,9 @@ operación solicitada
 def printMenu():
     print("\nBienvenido")
     print("1- Cargar información en el catálogo")
-    # print("2- Req 1: Listar cronológicamente los artistas")
-    # print("3- Req 2: Listar cronológicamente las adquisiciones")
-    # print("4- Req 3: Clasificar obras de un artista por técnica")
+    print("2- Req 1: Listar cronológicamente los artistas")
+    print("3- Req 2: Listar cronológicamente las adquisiciones")
+    print("4- Req 3: Clasificar obras de un artista por técnica")
     # print("5- Req 4: Clasificar obras por la nacionalidad de sus creadores")
     # print("6- Req 5: Transportar obras de un departamento")
     # print("7- Req 6: Encontrar los artistas más prolíficos del museo")
@@ -155,7 +155,6 @@ def PrintReq2 (first, last, InRange):
     print("The MoMA acquired", InRange[1] ,"unique pieces between", first, "and" , last)
     print("Of which", InRange[2], "were purchased\n")
 
-
 def PrintReq3 (artistArt, mediumTop, size, id, artistName):
     print("="*15, " Req No. 3 Inputs ", "="*15)
     print("Examine the work of the artist named: "+artistName+"\n")
@@ -228,20 +227,18 @@ while True:
         
     elif inputs == 3:
         #req 2
-        firstY=(input("Año incial (AAAA): "))
-        firstM=(input("Mes incial (MM): "))
-        firstD=(input("Dia inicial (DD): "))
-        Date1 = firstY + "-" + firstM + "-" + firstD
-        first = int((date.fromisoformat(Date1)).strftime("%Y%m%d"))
-
-        lastY=(input("Año final (AAAA): "))
-        lastM=(input("Mes final (MM): "))
-        lastD=(input("Dia final (DD): "))
-        Date2= lastY + "-" + lastM + "-" + lastD
-        last = int((date.fromisoformat(Date2)).strftime("%Y%m%d"))
+        firstY=int(input("Año incial (AAAA): "))
+        firstM=int(input("Mes incial (MM): "))
+        firstD=int(input("Dia inicial (DD): "))
+        first = dt.date(firstY,firstM,firstD)
+        
+        lastY=int(input("Año final (AAAA): "))
+        lastM=int(input("Mes final (MM): "))
+        lastD=int(input("Dia final (DD): "))
+        last=dt.date(lastY,lastM,lastD)
 
         InRange = controller.getCronologicalArtwork(catalog, first, last)
-        PrintReq2(Date1, Date2, InRange)
+        PrintReq2(first, last, InRange)
 
     elif inputs == 4:
         #req 3
