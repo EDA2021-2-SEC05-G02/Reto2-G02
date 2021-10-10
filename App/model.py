@@ -263,6 +263,8 @@ def addArtworkDateAcquired (catalog, info):
         mp.put(years, pubyear, year)
     lt.addLast(year['artworks'], info)
     year['size'] += 1
+    if "purchase" in info['CreditLine'].lower():
+        year['purchase'] += 1
 
 
 def addArtistBeginDate(catalog, info):
@@ -294,7 +296,7 @@ def addArtworkNationality (catalog, info, id):
         entry = mp.get(nationalities, artnationality)
         nationality = me.getValue(entry)
     else:
-        nationality = newDateAcquired(artnationality)
+        nationality = newNationality(artnationality)
         mp.put(nationalities, artnationality, nationality)
     lt.addLast(nationality['artworks'], info)  
 
@@ -322,7 +324,7 @@ def newDepartment (artDepartment):
     return entry
 
 def newDateAcquired (artDate):
-    entry = {'year': "", "artworks": None, "size": 0}
+    entry = {'year': "", "artworks": None, "size": 0, "purchase": 0}
     entry['year'] = artDate
     entry['artworks'] = lt.newList('ARRAY_LIST', cmpArtworkByDate)
     return entry
@@ -412,9 +414,8 @@ def getCronologicalArtwork (catalog, first, last):
             año = mp.get(catalog['DatesAcquired'], key)
             value = me.getValue(año)
             contador += value['size']
+            purchased += value['purchase']
             for art in lt.iterator(value['artworks']):
-                if "purchase" in art['CreditLine'].lower():
-                    purchased += 1
                 lt.addLast(InRange,art)
 
     InRangeSorted = mer.sort(InRange, cmpArtworkByDateAcquired)
@@ -552,13 +553,13 @@ def compareArtworkByDepartment (department, entry):
         return -1
     
 def cmpArtworksByMedium (artwork1, artwork2):
-    return artwork1['Medium'] < artwork2['Medium']
+    return artwork1['Medium'].lower() < artwork2['Medium'].lower()
 
 def cmpArtworksByNationality (artwork1, artwork2):
-     return artwork1['Nationality'] < artwork2['Nationality']
+     return artwork1['Nationality'].lower() < artwork2['Nationality'].lower()
 
 def cmpArtworkByDate(artwork1, artwork2): 
-    return artwork1['Date'] < artwork2['Date']
+    return int(artwork1['Date']) < int(artwork2['Date'])
 
 def cmpArtistByBeginDate(Artist1, Artist2):
     return (int(Artist1['BeginDate']) < int(Artist2['BeginDate']))

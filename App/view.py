@@ -154,6 +154,18 @@ def PrintReq2 (first, last, InRange):
     print("="*15, " Req No. 2 Answer ", "="*15)
     print("The MoMA acquired", InRange[1] ,"unique pieces between", first, "and" , last)
     print("Of which", InRange[2], "were purchased\n")
+    if InRange[1]!= 0:
+        if InRange[1] >= 6:
+            print("The first 3 artworks in the range are...")
+            primeros = controller.getFirst(InRange[0], 3)
+            printArtworkTable(primeros)
+
+            print("\nThe last 3 artworks in the range are...")  
+            ultimos = controller.getLast(InRange[0], 3)
+            printArtworkTable(ultimos)  
+        else:
+            print("The artworks in the range are...")
+            printArtworkTable(InRange[0])
 
 def PrintReq3 (artistArt, mediumTop, size, id, artistName):
     print("="*15, " Req No. 3 Inputs ", "="*15)
