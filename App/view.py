@@ -186,8 +186,14 @@ def PrintReq3 (artistArt, mediumTop, size, id, artistName):
 def PrintReq4 ():
     pass
 
-def PrintReq5 ():
-    pass
+def PrintReq5 (departamento, ArtworkDepartment):
+    print("="*15, " Req No. 5 Inputs ", "="*15)
+    print("Estimete the cost to transport all artifacts in " + departamento + " MoMA's Departament")
+    print("="*15, " Req No. 5 Answer ", "="*15)
+    print("The MoMA is going to transport", ArtworkDepartment[1], "from the",departamento)
+    print("REMEMBER! NOT all MoMA's data is complete !!! .... These are estimates.")
+    print("Estimated cargo weight (kg):", round(ArtworkDepartment[3],3))
+    print("Estimated cargo cost (USD):", round(ArtworkDepartment[2],3))
 
 def PrintReq6 ():
     pass
@@ -274,6 +280,8 @@ while True:
     elif inputs == 6:
         #req 5
         departamento = input("Ingrese el nombre del departamento del museo: ")
+        ArtworkDepartment = controller.getArworkByDepartment(catalog, departamento.lower())
+        PrintReq5(departamento, ArtworkDepartment)
 
     elif inputs == 7:
         #req 6

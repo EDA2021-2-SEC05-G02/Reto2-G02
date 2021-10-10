@@ -107,6 +107,13 @@ def getMediumInfo(artistArt):
     """
     return model.getMediumInfo(artistArt)
 
+
+def getArworkByDepartment (catalog, departamento):
+    """
+    Req 5
+    """
+    return model.getArworkByDepartment(catalog, departamento)
+
 # Funciones de laboratorio
 def getMedium(catalog, medio):
     """

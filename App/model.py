@@ -204,6 +204,25 @@ def addArtwork(catalog, artwork):
         elif info[key] == "":
             info[key] = "Unknown"
     
+    #Calcular el costo de transporte
+    Weight = info['Weight (kg)']
+    Length = info['Length (cm)']
+    Width = info['Width (cm)']
+    Height = info['Height (cm)']
+    Radius = (info['Diameter (cm)'] / 2) / 100
+
+    m2 = (Height*Width)/10000
+    m3 = (Height*Width*Length)/1000000
+    m2_v2 = math.pi * (Radius**2)
+    m3_v2 =  (4/3)*(math.pi)*(Radius**3)
+
+    mayor = max(m2,m3,m2_v2,m3_v2,Weight)
+    cost = 48
+    if mayor != 0:
+        cost = round(72*mayor, 3)
+
+    info['TransCost'] = cost
+
     for artist in info["ConstituentID"]:
         addArtistWork(catalog, artist, info)
         addArtworkNationality(catalog, info, artist) #lab
@@ -249,6 +268,9 @@ def addArtworkDepartment(catalog, info):
         mp.put(departments, artDepartment, department)
 
     lt.addLast(department['artworks'], info)
+    department['cost'] += info['TransCost']
+    department['weight'] += info['Weight (kg)']
+    department["size"] += 1
 
 def addArtworkDateAcquired (catalog, info):
     years = catalog['DatesAcquired']
@@ -317,7 +339,7 @@ def newArtistId (id):
     return entry
 
 def newDepartment (artDepartment):
-    entry = {'department': "", "artworks":None}
+    entry = {'department': "", "artworks":None, "cost": 0, "weight":0, "size":0}
     entry['department'] = artDepartment.lower()
     entry['artworks'] = lt.newList('ARRAY_LIST')
     return entry
@@ -477,6 +499,31 @@ def getMediumInfo(artistArt):
             topMedium = medium
     
     return topMedium, artSize
+
+def getArworkByDepartment (catalog, departamento):
+    """
+    Req 5
+    Se busca en el incide de Departments el departamento ingresado por parametro
+    llave: departamento, valor: dict(lista de obras, suma del costo de transporte, suma de los pesos,
+                                    cuantas obras hay en el departamento)
+        
+
+    param:
+        -catalog: Catalogo del museo MoMA
+    return:
+        -tuple: 
+            - TAD Lista: lista de obras pertenecientes al departamento
+            - Int: el numero total de obras
+            - Int: suma del costo de trasporte de cada obra
+            - Int: suma de los pesos de las obras
+    """
+    depto = mp.get(catalog['Departments'],departamento)
+    value = me.getValue(depto)
+    ltArtworks = value['artworks']
+    size = value['size']
+    cost = value['cost']
+    weight = value['weight']
+    return ltArtworks, size, cost, weight
 
 # Funciones de laboratorio
 
