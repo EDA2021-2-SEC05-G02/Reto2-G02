@@ -210,7 +210,6 @@ def addArtwork(catalog, artwork):
     lt.addLast(catalog['Artworks'], info)
     addArtworkDepartment(catalog, info)
     addArtworkDateAcquired(catalog, info)
-    #addArtworkMedium(catalog, info) # lab
 
 def addArtistWork(catalog, artistId, info):
     artists = catalog['ArtistsWorks']
@@ -389,10 +388,10 @@ def getCronologicalArtist(catalog, beginDate, endDate):
 
 def getCronologicalArtwork (catalog, first, last):
     """
-    Req 1:
+    Req 2:
     Recorre las llaves del indice de DatesAcquired (llave=año, valor=lista de obras)
     Agrega a una lista las obras adquiridas en el rango y de esas obras calcula cuantas
-    fueron comradas (purchase).
+    fueron comradas (purchase) y la cantidad de obras en el rango.
     param:
         -catalog: Catalogo MoMA
         -first: Fecha de adquisicion inicial
@@ -420,10 +419,6 @@ def getCronologicalArtwork (catalog, first, last):
 
     InRangeSorted = mer.sort(InRange, cmpArtworkByDateAcquired)
     return InRangeSorted, contador, purchased
-
-
-
-
 
 def getArtist(catalog, name):
     """
@@ -483,7 +478,6 @@ def getMediumInfo(artistArt):
     
     return topMedium, artSize
 
-
 # Funciones de laboratorio
 
 def getMedium(catalog, medio):
@@ -500,7 +494,6 @@ def getNationality(catalog, nacionalidad):
     if ltNationality:
         art = me.getValue(ltNationality)['artworks']
     return art
-
 
 # Funciones utilizadas para comparar elementos dentro de una lista
 def compareMapArtMedium (medium, entry):
@@ -566,4 +559,5 @@ def cmpArtistByBeginDate(Artist1, Artist2):
 
 def cmpArtworkByDateAcquired(artwork1, artwork2): 
     return artwork1['DateAcquired'] < artwork2['DateAcquired']
+
 # Funciones de ordenamiento
