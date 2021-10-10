@@ -34,7 +34,6 @@ from DISClib.Algorithms.Sorting import quicksort as qui
 from DISClib.Algorithms.Sorting import mergesort as mer
 assert cf
 import datetime as dt
-import time
 import math
 
 """
@@ -107,14 +106,8 @@ def newCatalog():
                                    maptype='PROBING',
                                    loadfactor=0.5,
                                    comparefunction=compareMapYear)
-    
-    #LAB Este indice crea un map cuya llave es el Medium de la obra.
-    catalog['Mediums'] = mp.newMap(41,
-                                 maptype='CHAINING',
-                                 loadfactor=1.0,
-                                 comparefunction=compareMapArtMedium)
-    
-    #LAB Este indice crea un map cuya llave es el la nacionalidad de la obra.
+        
+    #Este indice crea un map cuya llave es el la nacionalidad de la obra.
     catalog['Nationality'] = mp.newMap(41,
                                  maptype='CHAINING',
                                  loadfactor=1.0,
@@ -439,7 +432,7 @@ def getCronologicalArtwork (catalog, first, last):
             for art in lt.iterator(value['artworks']):
                 lt.addLast(InRange,art)
 
-    InRangeSorted = mer.sort(InRange, cmpArtworkByDateAcquired)
+    InRangeSorted = mer.sort(InRange, cmpArtworkByDateAcquired) #n*log(n)
     return InRangeSorted, contador, purchased
 
 def getArtist(catalog, name):

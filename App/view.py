@@ -167,21 +167,29 @@ def PrintReq2 (first, last, InRange):
             print("The artworks in the range are...")
             printArtworkTable(InRange[0])
 
-def PrintReq3 (artistArt, mediumTop, size, id, artistName):
+def PrintReq3 (mediumList, mediumTop, size, id, artistName):
     print("="*15, " Req No. 3 Inputs ", "="*15)
     print("Examine the work of the artist named: "+artistName+"\n")
     print("="*15, " Req No. 3 Answer ", "="*15)
     print(artistName, "with MoMA ID",id, "has", size, "pieces in her/his name at the museum.")
     if size != 0:
-        print("There are" ,mp.size(artistArt), "different mediums/techniques in her/his work.\n")
-        PrintArtistMedium(artistArt)
+        print("There are" ,mp.size(mediumList), "different mediums/techniques in her/his work.\n")
+        PrintArtistMedium(mediumList)
 
-        numPieces = mp.get(artistArt, mediumTop)['value']['size']
+        numPieces = mp.get(mediumList, mediumTop)['value']['size']
         print("\nHis/her most used Medium/Technique is:", mediumTop , "with", numPieces, "pieces.")
-        print("The",numPieces,"works of",mediumTop,"from the collection are:")
+        artistArt = mp.get(mediumList, mediumTop)['value']['artworks']
 
-        mediumList = mp.get(artistArt, mediumTop)['value']['artworks']
-        printArtworkTable(mediumList)
+        if numPieces >=6:
+            first = controller.getFirst(artistArt,3)
+            last = controller.getLast(artistArt,3)
+            print("The first 3 works of",mediumTop,"from the collection are:")
+            printArtworkTable(first)
+            print("The last 3 works of",mediumTop,"from the collection are:")
+            printArtworkTable(last)
+        else:
+            print("The",numPieces,"works of",mediumTop,"from the collection are:")
+            printArtworkTable(artistArt)
 
 def PrintReq4 ():
     pass
@@ -246,13 +254,13 @@ while True:
     elif inputs == 3:
         #req 2
         firstY=int(input("Año incial (AAAA): "))
-        firstM=int(input("Mes incial (MM): "))
-        firstD=int(input("Dia inicial (DD): "))
+        firstM=int(input("Mes incial: "))
+        firstD=int(input("Dia inicial: "))
         first = dt.date(firstY,firstM,firstD)
         
         lastY=int(input("Año final (AAAA): "))
-        lastM=int(input("Mes final (MM): "))
-        lastD=int(input("Dia final (DD): "))
+        lastM=int(input("Mes final: "))
+        lastD=int(input("Dia final: "))
         last=dt.date(lastY,lastM,lastD)
 
         InRange = controller.getCronologicalArtwork(catalog, first, last)
