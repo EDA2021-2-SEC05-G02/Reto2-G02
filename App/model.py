@@ -500,8 +500,8 @@ def getNationalityandArtwork(catalog):
      - Agrega a una lista las obras de cada nacionalidad y se cuenta la cantidad de obras de cada nacionalidad.
      - Organizar la lista por longitud de la lista de obras de cada nacionalidad.
      - Se crea una sublista con el top 10 nacionalidades con mayor cantidad de obras a partir de la lista previamente organizada.
-     - Se crea una sublista con las obras de la nacionalidad con mayor numero de obras.
-     - Se crean otras dos sublistas para devolver los tres primeros y ultimos elementos de la lista anterior.
+     - Se retornma los elementos que se encuentran en "Obras" de la nacionalidad con mayor cantidad de obras.
+     - Se crean dos sublistas una para  los tres primeros y otra para los ultimos elementos de la lista de "Obras" de la nacionalidad con mayor cantidad de obras.
     param:
         -catalog: Catalogo MoMA
     return:
@@ -509,8 +509,8 @@ def getNationalityandArtwork(catalog):
             - Dict: Diccionario con el top 10 de nacionalidades con mas obras - Check
             - Dict: Diccionario con las tres primeras obras de la nacionalidad con mas obras - Check
             - Dict: Diccionario con las tres ultimas obras de la nacionalidad con mas obras - Check
-            - Int: El total de obras de la nacionalidad con mas obras
-            - Nat: Un string de la nacionalidad con mas obras
+            - Int: El total de obras de la nacionalidad con mas obras - Check
+            - String: La nacionalidad con mas obras - Check
 
     """
     lista = lt.newList('ARRAY_LIST')
@@ -523,11 +523,10 @@ def getNationalityandArtwork(catalog):
     mer.sort(lista, cmpArtworkbyNationality)
     sorted_list = lt.subList(lista, 1, 10)
     top = lt.getElement(sorted_list, 1)['Obras']
-    tamano = lt.size(top)
     nat = lt.getElement(sorted_list, 1)['Nacionalidad']
     first = lt.subList(top, 1, 3)
     last = lt.subList(top, lt.size(top)-2, 3)
-    return sorted_list, first, last, tamano, nat
+    return sorted_list, first, last, lt.size(top), nat
     
 
 def getArworkByDepartment (catalog, departamento):
