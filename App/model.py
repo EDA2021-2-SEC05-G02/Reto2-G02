@@ -517,7 +517,7 @@ def getNationalityandArtwork(catalog):
             lt.addLast(lista, {'Longitud': lt.size(value), 'Nacionalidad': key})
     mer.sort(lista, cmpArtworkbyNationality)
     sorted_list = lt.subList(lista, 1, 10)
-    # Devuelve la lista de obras de la nacionalidad con mas obras
+    # Devolver la lista de obras de la nacionalidad con mas obras
     return sorted_list
     
 

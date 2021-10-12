@@ -191,8 +191,16 @@ def PrintReq3 (mediumList, mediumTop, size, id, artistName):
             print("The",numPieces,"works of",mediumTop,"from the collection are:")
             printArtworkTable(artistArt)
 
-def PrintReq4 ():
-    pass
+def PrintReq4 (nacionalidad):
+    print("="*15, " Req No. 4 Inputs ", "="*15)
+    print("Ranking countries by their number of artworks in the MoMA...")
+    print("="*15, " Req No. 4 Answer ", "="*15)
+    print("The TOP 10 Countries in the MoMA")
+    x = PrettyTable(hrules=prettytable.ALL)
+    x.field_names = ["Artworks", "Nationality"]
+    for value in lt.iterator(nacionalidad):
+        x.add_row([value['Longitud'], value['Nacionalidad']])
+    print(x)
 
 def PrintReq5 (departamento, ArtworkDepartment):
     print("="*15, " Req No. 5 Inputs ", "="*15)
@@ -284,8 +292,7 @@ while True:
     elif inputs == 5:
         #req 4
         nacionalidad = controller.getNationalityandArtwork(catalog)
-        print(nacionalidad)
-        
+        PrintReq4(nacionalidad)
 
     elif inputs == 6:
         #req 5
