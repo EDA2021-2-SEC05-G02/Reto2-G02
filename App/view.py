@@ -195,12 +195,14 @@ def PrintReq4 (nacionalidad):
     print("="*15, " Req No. 4 Inputs ", "="*15)
     print("Ranking countries by their number of artworks in the MoMA...")
     print("="*15, " Req No. 4 Answer ", "="*15)
-    print("The TOP 10 Countries in the MoMA")
+    print("The TOP 10 Countries in the MoMA are:")
     x = PrettyTable(hrules=prettytable.ALL)
     x.field_names = ["Artworks", "Nationality"]
     for value in lt.iterator(nacionalidad):
         x.add_row([value['Longitud'], value['Nacionalidad']])
     print(x)
+    print("The TOP nationality in the museum is American with ---- unique pieces")
+    print("The first and last 3 objects in the American artwork list are:")
 
 def PrintReq5 (departamento, ArtworkDepartment):
     print("="*15, " Req No. 5 Inputs ", "="*15)
