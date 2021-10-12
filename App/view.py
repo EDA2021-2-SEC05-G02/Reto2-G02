@@ -191,7 +191,7 @@ def PrintReq3 (mediumList, mediumTop, size, id, artistName):
             print("The",numPieces,"works of",mediumTop,"from the collection are:")
             printArtworkTable(artistArt)
 
-def PrintReq4 (nacionalidad, First, Last):
+def PrintReq4 (nacionalidad, First, Last, Top, Nat):
     print("="*15, " Req No. 4 Inputs ", "="*15)
     print("Ranking countries by their number of artworks in the MoMA...")
     print("="*15, " Req No. 4 Answer ", "="*15)
@@ -201,8 +201,8 @@ def PrintReq4 (nacionalidad, First, Last):
     for value in lt.iterator(nacionalidad):
         x.add_row([value['Longitud'], value['Nacionalidad']])
     print(x)
-    print("The TOP nationality in the museum is American with ---- unique pieces")
-    print("The first and last 3 objects in the American artwork list are:")
+    print("The TOP nationality in the museum is " + str(Nat) + " with " + str(Top) + " unique pieces")
+    print("The first and last 3 objects in the " + str(Nat) + " artwork list are:")
     printArtworkTable(First)
     printArtworkTable(Last)
 
@@ -298,7 +298,9 @@ while True:
         List_Nationality = nacionalidad[0]
         First = nacionalidad[1]
         Last = nacionalidad[2]
-        PrintReq4(List_Nationality, First, Last)
+        Top = nacionalidad[3]
+        Nat = nacionalidad[4]
+        PrintReq4(List_Nationality, First, Last, Top, Nat)
         
     elif inputs == 6:
         #req 5
