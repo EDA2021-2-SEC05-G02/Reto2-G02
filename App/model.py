@@ -406,7 +406,7 @@ def getCronologicalArtwork (catalog, first, last):
     Req 2:
     Recorre las llaves del indice de DatesAcquired (llave=año, valor=lista de obras)
     Agrega a una lista las obras adquiridas en el rango y de esas obras calcula cuantas
-    fueron comradas (purchase) y la cantidad de obras en el rango.
+    fueron compradas (purchase) y la cantidad de obras en el rango.
     param:
         -catalog: Catalogo MoMA
         -first: Fecha de adquisicion inicial
@@ -493,6 +493,36 @@ def getMediumInfo(artistArt):
     
     return topMedium, artSize
 
+def getNationalityandArtwork(catalog):
+    """
+    Req 4:
+    Recorre las llaves del indice de nacionalidad (llave=nacionalidad, valor=lista de obras).
+     - Agrega a una lista las obras de cada nacionalidad y se cuenta la cantidad de obras de cada nacionalidad.
+     - Organizar la lista por longitud de la lista de obras de cada nacionalidad.
+     - Se crea una sublista con el top 10 nacionalidades con mayor cantidad de obras a partir de la lista previamente organizada.
+     - Se devuelve el valor de la nacionalidad con mas obras.
+    param:
+        -catalog: Catalogo MoMA
+    return:
+        -tuple: 
+            - ADT list: lista con el top 10 de nacionalidades con mas obras - Check
+            - ADT list: lista de obras de la nacionalidad con mas obras
+    """
+    lista = lt.newList('ARRAY_LIST')
+    keys = mp.keySet(catalog['Nationality'])
+    for key in lt.iterator(keys):
+        nacionalidad = mp.get(catalog['Nationality'], key)
+        if nacionalidad:
+            value = me.getValue(nacionalidad)['artworks']
+            lt.addLast(lista, {'Longitud': lt.size(value), 'Nacionalidad': key})
+    mer.sort(lista, cmpArtworkbyNationality)
+    sorted_list = lt.subList(lista, 1, 10)
+    # Devuelve la lista de obras de la nacionalidad con mas obras
+    return sorted_list
+    
+
+
+
 def getArworkByDepartment (catalog, departamento):
     """
     Req 5
@@ -534,6 +564,8 @@ def getNationality(catalog, nacionalidad):
     if ltNationality:
         art = me.getValue(ltNationality)['artworks']
     return art
+
+
 
 # Funciones utilizadas para comparar elementos dentro de una lista
 def compareMapArtMedium (medium, entry):
@@ -593,6 +625,9 @@ def cmpArtworksByNationality (artwork1, artwork2):
 
 def cmpArtworkByDate(artwork1, artwork2): 
     return int(artwork1['Date']) < int(artwork2['Date'])
+
+def cmpArtworkbyNationality(artist1, artist2):
+    return artist1['Longitud'] > artist2['Longitud']
 
 def cmpArtistByBeginDate(Artist1, Artist2):
     return (int(Artist1['BeginDate']) < int(Artist2['BeginDate']))

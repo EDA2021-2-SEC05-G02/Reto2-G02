@@ -107,6 +107,9 @@ def getMediumInfo(artistArt):
     """
     return model.getMediumInfo(artistArt)
 
+def getNationalityandArtwork(catalog):
+    return model.getNationalityandArtwork(catalog)
+
 
 def getArworkByDepartment (catalog, departamento):
     """

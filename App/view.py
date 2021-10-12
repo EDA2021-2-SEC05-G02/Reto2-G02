@@ -283,7 +283,9 @@ while True:
 
     elif inputs == 5:
         #req 4
-        pass
+        nacionalidad = controller.getNationalityandArtwork(catalog)
+        print(nacionalidad)
+        
 
     elif inputs == 6:
         #req 5
