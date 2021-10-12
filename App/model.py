@@ -505,8 +505,10 @@ def getNationalityandArtwork(catalog):
         -catalog: Catalogo MoMA
     return:
         -tuple: 
-            - ADT list: lista con el top 10 de nacionalidades con mas obras - Check
-            - ADT list: lista de obras de la nacionalidad con mas obras
+            - Dict: Diccionario con el top 10 de nacionalidades con mas obras - Check
+            - Dict: Diccionario con las tres primeras obras de la nacionalidad con mas obras - Check
+            - Dict: Diccionario con las tres ultimas obras de la nacionalidad con mas obras - Check
+
     """
     lista = lt.newList('ARRAY_LIST')
     keys = mp.keySet(catalog['Nationality'])
@@ -514,11 +516,13 @@ def getNationalityandArtwork(catalog):
         nacionalidad = mp.get(catalog['Nationality'], key)
         if nacionalidad:
             value = me.getValue(nacionalidad)['artworks']
-            lt.addLast(lista, {'Longitud': lt.size(value), 'Nacionalidad': key})
+            lt.addLast(lista, {'Longitud': lt.size(value), 'Nacionalidad': key, 'Obras': value})
     mer.sort(lista, cmpArtworkbyNationality)
     sorted_list = lt.subList(lista, 1, 10)
-    # Devolver la lista de obras de la nacionalidad con mas obras
-    return sorted_list
+    top = lt.getElement(sorted_list, 1)['Obras']
+    first = lt.subList(top, 1, 3)
+    last = lt.subList(top, lt.size(top)-2, 3)
+    return sorted_list, first, last
     
 
 

@@ -191,7 +191,7 @@ def PrintReq3 (mediumList, mediumTop, size, id, artistName):
             print("The",numPieces,"works of",mediumTop,"from the collection are:")
             printArtworkTable(artistArt)
 
-def PrintReq4 (nacionalidad):
+def PrintReq4 (nacionalidad, First, Last):
     print("="*15, " Req No. 4 Inputs ", "="*15)
     print("Ranking countries by their number of artworks in the MoMA...")
     print("="*15, " Req No. 4 Answer ", "="*15)
@@ -203,6 +203,8 @@ def PrintReq4 (nacionalidad):
     print(x)
     print("The TOP nationality in the museum is American with ---- unique pieces")
     print("The first and last 3 objects in the American artwork list are:")
+    printArtworkTable(First)
+    printArtworkTable(Last)
 
 def PrintReq5 (departamento, ArtworkDepartment):
     print("="*15, " Req No. 5 Inputs ", "="*15)
@@ -288,14 +290,16 @@ while True:
             continue
 
         mediumTop, size = controller.getMediumInfo(artistInfo[0])
-
         PrintReq3(artistInfo[0], mediumTop, size, artistInfo[1], artistName)
 
     elif inputs == 5:
         #req 4
         nacionalidad = controller.getNationalityandArtwork(catalog)
-        PrintReq4(nacionalidad)
-
+        List_Nationality = nacionalidad[0]
+        First = nacionalidad[1]
+        Last = nacionalidad[2]
+        PrintReq4(List_Nationality, First, Last)
+        
     elif inputs == 6:
         #req 5
         departamento = input("Ingrese el nombre del departamento del museo: ")
