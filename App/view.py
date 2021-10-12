@@ -46,7 +46,7 @@ def printMenu():
     print("2- Req 1: Listar cronológicamente los artistas")
     print("3- Req 2: Listar cronológicamente las adquisiciones")
     print("4- Req 3: Clasificar obras de un artista por técnica")
-    # print("5- Req 4: Clasificar obras por la nacionalidad de sus creadores")
+    print("5- Req 4: Clasificar obras por la nacionalidad de sus creadores")
     # print("6- Req 5: Transportar obras de un departamento")
     # print("7- Req 6: Encontrar los artistas más prolíficos del museo")
     print("8- Lab5: las n obras más antiguas para un medio específico")
