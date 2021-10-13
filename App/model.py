@@ -524,8 +524,8 @@ def getNationalityandArtwork(catalog):
     sorted_list = lt.subList(lista, 1, 10)
     top = lt.getElement(sorted_list, 1)['Obras']
     nat = lt.getElement(sorted_list, 1)['Nacionalidad']
-    first = lt.subList(top, 1, 3)
-    last = lt.subList(top, lt.size(top)-2, 3)
+    first = getFirst(top, 3)
+    last = getLast(top, 3)
     return sorted_list, first, last, lt.size(top), nat
     
 

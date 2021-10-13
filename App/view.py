@@ -130,6 +130,7 @@ def PrintArtistMedium (info):
         print("Her/his Medium/Technique are:")
         print(x)
 
+
 # Funciones para impresion de resultados
 def PrintReq1 (beginDate, endDate, InRange):
     print("="*15, " Req No. 1 Inputs ", "="*15)
