@@ -25,7 +25,7 @@ import sys
 import controller
 from DISClib.ADT import list as lt
 from DISClib.ADT import map as mp
-from DISClib.DataStructures import mapentry as me
+#from DISClib.DataStructures import mapentry as me
 assert cf
 import datetime as dt
 import prettytable
@@ -47,10 +47,8 @@ def printMenu():
     print("3- Req 2: Listar cronológicamente las adquisiciones")
     print("4- Req 3: Clasificar obras de un artista por técnica")
     print("5- Req 4: Clasificar obras por la nacionalidad de sus creadores")
-    # print("6- Req 5: Transportar obras de un departamento")
+    print("6- Req 5: Transportar obras de un departamento")
     # print("7- Req 6: Encontrar los artistas más prolíficos del museo")
-    print("8- Lab5: las n obras más antiguas para un medio específico")
-    print("9- Lab6: el número total de obras de una nacionalidad ")
 
 # Funciones de inicializacion
 
@@ -92,7 +90,7 @@ def printArtworkTable(info):
     x.field_names = ["ObjectID", "Title", 
                     "ConstituentID", "Medium", 
                     "Dimensions", "Date", 
-                    "Date Acquired", "URL"]
+                    "Date Acquired", "TransCost (USD)","URL"]
 
     x._max_width = {"Title":18,"ConstituentID":18, "Medium":18, "Dimensions":18, "URL":15}
 
@@ -101,12 +99,12 @@ def printArtworkTable(info):
             x.add_row([ i["ObjectID"], i["Title"], 
                         i["ConstituentID"], i["Medium"], 
                         i["Dimensions"], "Unknown", 
-                        i["DateAcquired"], i["URL"]])
+                        i["DateAcquired"], i["TransCost"], i["URL"]])
         else:
             x.add_row([ i["ObjectID"], i["Title"], 
                         i["ConstituentID"], i["Medium"], 
                         i["Dimensions"], i["Date"], 
-                        i["DateAcquired"], i["URL"]])
+                        i["DateAcquired"],i["TransCost"], i["URL"]])
     x.align = "l"
     x.align["ObjectID"] = "r"
     x.align["Date"] = "r" 
@@ -214,31 +212,25 @@ def PrintReq5 (departamento, ArtworkDepartment):
     print("REMEMBER! NOT all MoMA's data is complete !!! .... These are estimates.")
     print("Estimated cargo weight (kg):", round(ArtworkDepartment[3],3))
     print("Estimated cargo cost (USD):", round(ArtworkDepartment[2],3))
+    LtSortbyDate = controller.SortbyDate(ArtworkDepartment[0])
+    print("\nThe TOP 5 oldest items to transport are:")
+    if ArtworkDepartment[1] >=6:
+        TopOldest = controller.getFirst(LtSortbyDate, 5)
+        printArtworkTable(TopOldest)
+    else:
+        printArtworkTable(LtSortbyDate)
+    
+    LtSortbyCost = controller.SortbyCost(ArtworkDepartment[0])
+    print("\nThe TOP 5 most expensive items to transport are:")
+    if ArtworkDepartment[1] >=6:
+        TopExpensive = controller.getFirst(LtSortbyCost, 5)
+        printArtworkTable(TopExpensive)
+    else:
+        printArtworkTable(LtSortbyCost)
+    
 
 def PrintReq6 ():
     pass
-
-# Funciones para el laboratorio
-
-def PrintLab5 (art, num):
-    if art:
-        print("Se encontraton",lt.size(art),"obras creadas con el medio ingresado")
-        if lt.size(art) > num:
-            print("Las", num, "obras mas antiguas son:")
-            antiguas = controller.getFirst(art, num)
-            printArtworkTable(antiguas)
-        else:
-            print("Las obras creadas con el medio ingresado son:")
-            printArtworkTable(art)
-
-    else:
-        print("No se encontraton obras.\n")
-
-def PrintLab6 (art):
-    if art:
-        print("Se encontraton",lt.size(art),"obras con la nacionalidad ingresada")
-    else:
-        print("No se encontraton obras.\n")
 
 # Menu principal
 
@@ -247,7 +239,7 @@ catalog = None
 while True:
     printMenu()
     inputs = int(input('Seleccione una opción para continuar\n'))
-    if inputs == 1:
+    if inputs == 1:     #carga de datos
         print("Inicializando Catálogo ....")
         catalog = controller.initCatalog()
         print("Cargando información de los archivos ....")
@@ -255,16 +247,16 @@ while True:
         print('Obras de Arte cargadas:',lt.size(catalog['Artworks']))
         print('Artistas cargados:',lt.size(catalog['Artists']))
 
-    elif inputs == 2:
-        #req 1
+    elif inputs == 2:   #req 1
+        
         beginDate = int(input("Ingrese el año inicial: "))
         endDate = int(input("Ingrese el año final: "))
 
         InRange = controller.getCronologicalArtist(catalog,beginDate,endDate)
         PrintReq1(beginDate, endDate, InRange)
         
-    elif inputs == 3:
-        #req 2
+    elif inputs == 3:   #req 2
+        
         firstY=int(input("Año incial (AAAA): "))
         firstM=int(input("Mes incial: "))
         firstD=int(input("Dia inicial: "))
@@ -278,8 +270,8 @@ while True:
         InRange = controller.getCronologicalArtwork(catalog, first, last)
         PrintReq2(first, last, InRange)
 
-    elif inputs == 4:
-        #req 3
+    elif inputs == 4:   #req 3
+        
         artistName= input("Ingrese el nombre de la/el artista: ")
         artistInfo = controller.getArtist(catalog, artistName.lower())
         if not artistInfo:
@@ -292,8 +284,8 @@ while True:
         mediumTop, size = controller.getMediumInfo(artistInfo[0])
         PrintReq3(artistInfo[0], mediumTop, size, artistInfo[1], artistName)
 
-    elif inputs == 5:
-        #req 4
+    elif inputs == 5:   #req 4
+        
         nacionalidad = controller.getNationalityandArtwork(catalog)
         List_Nationality = nacionalidad[0]
         First = nacionalidad[1]
@@ -302,28 +294,14 @@ while True:
         Nat = nacionalidad[4]
         PrintReq4(List_Nationality, First, Last, Top, Nat)
         
-    elif inputs == 6:
-        #req 5
+    elif inputs == 6:   #req 5
         departamento = input("Ingrese el nombre del departamento del museo: ")
         ArtworkDepartment = controller.getArworkByDepartment(catalog, departamento.lower())
         PrintReq5(departamento, ArtworkDepartment)
 
-    elif inputs == 7:
-        #req 6
+    elif inputs == 7:   #req 6
+        
         pass
-
-    #Laboratorio
-
-    elif inputs == 8:
-        medio = input("Escriba el medio especifico que quiere consultar: ")
-        num = int(input("Escriba el número de obras que quiere imprimir: "))
-        ArtworksByMedium = controller.getMedium(catalog, medio.lower())
-        PrintLab5(ArtworksByMedium, num)
-    
-    elif inputs == 9:
-        nacionalidad = input("Escriba la nacionalidad especifica que quiere consultar: ")
-        ArtworksByNationality = controller.getNationality(catalog, nacionalidad.lower())
-        PrintLab6(ArtworksByNationality)
 
     else:
         sys.exit(0)
