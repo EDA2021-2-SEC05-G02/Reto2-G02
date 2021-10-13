@@ -69,6 +69,18 @@ def loadArtist(catalog):
 
 # Funciones de ordenamiento
 
+def SortbyDate (lista):
+    """
+    Retorna la lista ordenada por 'Date'
+    """
+    return model.SortbyDate(lista)
+
+def SortbyCost (lista):
+    """
+    Retorna la lista ordenada por 'TransCost'
+    """
+    return model.SortbyCost(lista)
+
 # Funciones de consulta sobre el catálogo
 
 def getLast(catalog, num):
@@ -116,14 +128,3 @@ def getArworkByDepartment (catalog, departamento):
     Req 5
     """
     return model.getArworkByDepartment(catalog, departamento)
-
-# Funciones de laboratorio
-def getMedium(catalog, medio):
-    """
-    Retorna la lista de obras que fueron creadas con el 
-    medio dado.
-    """
-    return model.getMedium(catalog, medio)
-
-def getNationality(catalog, nacionalidad):
-    return model.getNationality(catalog, nacionalidad)

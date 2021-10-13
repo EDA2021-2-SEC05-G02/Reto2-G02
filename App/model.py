@@ -28,9 +28,9 @@ import config as cf
 from DISClib.ADT import list as lt
 from DISClib.ADT import map as mp
 from DISClib.DataStructures import mapentry as me
-from DISClib.Algorithms.Sorting import shellsort as sa
-from DISClib.Algorithms.Sorting import insertionsort as ins
-from DISClib.Algorithms.Sorting import quicksort as qui
+# from DISClib.Algorithms.Sorting import shellsort as sa
+# from DISClib.Algorithms.Sorting import insertionsort as ins
+# from DISClib.Algorithms.Sorting import quicksort as qui
 from DISClib.Algorithms.Sorting import mergesort as mer
 assert cf
 import datetime as dt
@@ -398,7 +398,7 @@ def getCronologicalArtist(catalog, beginDate, endDate):
             for artist in lt.iterator(value['artists']):
                 lt.addLast(InRange,artist)
 
-    InRangeSorted = mer.sort(InRange, cmpArtistByBeginDate)  #n*log(n)
+    InRangeSorted = SortbyBeginDate(InRange) #n*log(n) 
     return InRangeSorted, contador
 
 def getCronologicalArtwork (catalog, first, last):
@@ -432,7 +432,7 @@ def getCronologicalArtwork (catalog, first, last):
             for art in lt.iterator(value['artworks']):
                 lt.addLast(InRange,art)
 
-    InRangeSorted = mer.sort(InRange, cmpArtworkByDateAcquired) #n*log(n)
+    InRangeSorted = SortbyDateAcquired(InRange) #n*log(n)
     return InRangeSorted, contador, purchased
 
 def getArtist(catalog, name):
@@ -468,7 +468,7 @@ def getMediumInfo(artistArt):
     a la par va buscando cual es medio con mas cantidad de obras.
 
     param:
-        -artistArt: TAD map: llave = nombre del medio;  valor = Lista de obras que pertenecen a dicho medio
+        -artistArt: TAD map: llave = nombre del medio; valor = Lista de obras que pertenecen a dicho medio
 
     return:
         -tuple: 
@@ -554,25 +554,6 @@ def getArworkByDepartment (catalog, departamento):
     weight = value['weight']
     return ltArtworks, size, cost, weight
 
-# Funciones de laboratorio
-
-def getMedium(catalog, medio):
-    ltMedium = mp.get(catalog['Mediums'], medio)
-    art = None
-    if ltMedium:
-        art = me.getValue(ltMedium)['artworks']
-        qui.sort(art, cmpArtworkByDate)
-    return art
-
-def getNationality(catalog, nacionalidad):
-    ltNationality = mp.get(catalog['Nationality'], nacionalidad)
-    art = None
-    if ltNationality:
-        art = me.getValue(ltNationality)['artworks']
-    return art
-
-
-
 # Funciones utilizadas para comparar elementos dentro de una lista
 def compareMapArtMedium (medium, entry):
     MediumEntry = me.getKey(entry)
@@ -641,4 +622,31 @@ def cmpArtistByBeginDate(Artist1, Artist2):
 def cmpArtworkByDateAcquired(artwork1, artwork2): 
     return artwork1['DateAcquired'] < artwork2['DateAcquired']
 
+def cmpArtworkByTransCost(artwork1, artwork2): 
+    return artwork1['TransCost'] > artwork2['TransCost']
+
 # Funciones de ordenamiento
+
+def SortbyBeginDate (lista):
+    """
+    Retorna la lista ordenada por 'BeginDate'
+    """
+    return mer.sort(lista, cmpArtistByBeginDate) 
+
+def SortbyDateAcquired (lista):
+    """
+    Retorna la lista ordenada por 'DateAcquired'
+    """
+    return mer.sort(lista, cmpArtworkByDateAcquired)
+
+def SortbyDate (lista):
+    """
+    Retorna la lista ordenada por 'Date'
+    """
+    return mer.sort(lista, cmpArtworkByDate)
+
+def SortbyCost (lista):
+    """
+    Retorna la lista ordenada por 'TransCost'
+    """
+    return mer.sort(lista, cmpArtworkByTransCost)
