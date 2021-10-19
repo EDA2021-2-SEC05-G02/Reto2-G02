@@ -52,7 +52,7 @@ def loadArtwork(catalog):
     Carga las obras del archivo. Por cada obra se indica al
     modelo que debe adicionarla al catalogo.
     """
-    Artworkfile = cf.data_dir + 'Artworks-utf8-small.csv'
+    Artworkfile = cf.data_dir + 'Artworks-utf8-large.csv'
     input_file = csv.DictReader(open(Artworkfile, encoding='utf-8'))
     for artwork in input_file:
         model.addArtwork(catalog, artwork)
@@ -62,7 +62,7 @@ def loadArtist(catalog):
     Carga los artistas del archivo. Por cada artista se indica al
     modelo que debe adicionarlo al catalogo.
     """
-    Artistfile = cf.data_dir + 'Artists-utf8-small.csv'
+    Artistfile = cf.data_dir + 'Artists-utf8-large.csv'
     input_file = csv.DictReader(open(Artistfile, encoding='utf-8'))
     for artist in input_file:
         model.addArtist(catalog, artist)

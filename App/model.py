@@ -71,46 +71,46 @@ def newCatalog():
     catalog['Artworks'] = lt.newList('ARRAY_LIST')
     catalog['Artists'] = lt.newList('ARRAY_LIST')
 
-    #Este indice crea un map cuya llave es el nombre del artista.
-    catalog['ArtistsNames'] = mp.newMap(800,
+    #Este indice crea un map cuya llave es el nombre del artista. ✓
+    catalog['ArtistsNames'] = mp.newMap(3821,
                                    maptype='CHAINING',
                                    loadfactor=4.0,
                                    comparefunction=compareArtistByName)
     
-    #Este indice crea un map cuya llave es el id del artista.
-    catalog['ArtistsId'] = mp.newMap(800,
+    #Este indice crea un map cuya llave es el id del artista. ✓
+    catalog['ArtistsId'] = mp.newMap(3821,
                                    maptype='CHAINING',
                                    loadfactor=4.0,
                                    comparefunction=compareArtistIds)
     
-    #Este indice crea un map cuya llave es el id del artista.
-    catalog['ArtistsWorks'] = mp.newMap(800,
+    #Este indice crea un map cuya llave es el id del artista. ✓
+    catalog['ArtistsWorks'] = mp.newMap(3821,
                                    maptype='CHAINING',
                                    loadfactor=4.0,
                                    comparefunction=compareArtistIds)
     
-    #Este indice crea un map cuya llave es la fecha de adquisición de la obra.
-    catalog['DatesAcquired'] = mp.newMap(5591,
-                                   maptype='PROBING',
-                                   loadfactor=0.5,
+    #Este indice crea un map cuya llave es la fecha de adquisición de la obra. ✓
+    catalog['DatesAcquired'] = mp.newMap(443,
+                                   maptype='CHAINING',
+                                   loadfactor=4.0,
                                    comparefunction=compareMapYear)
     
-    #Este indice crea un map cuya llave es el departamento al que pertenece la obra.
-    catalog['Departments'] = mp.newMap(800,
-                                   maptype='CHAINING',
-                                   loadfactor=4.0,
+    #Este indice crea un map cuya llave es el departamento al que pertenece la obra. ✓
+    catalog['Departments'] = mp.newMap(19,
+                                   maptype='PROBING',
+                                   loadfactor=0.5,
                                    comparefunction=compareArtworkByDepartment)
     
-    #Este indice crea un map cuya llave es la fecha de nacimiento del artista.
-    catalog['BeginDates'] = mp.newMap(1009,
-                                   maptype='PROBING',
-                                   loadfactor=0.5,
+    #Este indice crea un map cuya llave es la fecha de nacimiento del artista. ✓
+    catalog['BeginDates'] = mp.newMap(67,
+                                   maptype='CHAINING',
+                                   loadfactor=4.0,
                                    comparefunction=compareMapYear)
         
-    #Este indice crea un map cuya llave es el la nacionalidad de la obra.
-    catalog['Nationality'] = mp.newMap(41,
+    #Este indice crea un map cuya llave es el la nacionalidad de la obra. ✓
+    catalog['Nationality'] = mp.newMap(67,
                                  maptype='CHAINING',
-                                 loadfactor=1.0,
+                                 loadfactor=2.0,
                                  comparefunction=compareMapArtMedium)
             
     return catalog
@@ -135,10 +135,13 @@ def addArtist(catalog, artist):
     info["ULAN"] = artist['ULAN']
 
     for key in info:
-        if key == "Nationality" and info[key] == "":
-            info[key] = "Nationality unknown"
         if info[key] == "":
             info[key] = "Unknown"
+            if key == "BeginDate":
+                info[key] = 2021
+            elif key == "Nationality":
+                info[key] = "Nationality unknown"
+            
 
     lt.addLast(catalog['Artists'], info)
     mp.put(catalog['ArtistsNames'], info['DisplayName'].lower(), info)
@@ -385,21 +388,23 @@ def getCronologicalArtist(catalog, beginDate, endDate):
             - ADT list: lista de artistas que nacieron en el rango de años 
             - Int: el total de artistas nacidos en el rango dado.
     """
-    InRange = lt.newList('ARRAY_LIST')
+    # n: # de llaves
+
+    InRange = InRange = lt.newList('ARRAY_LIST')
 
     keys = mp.keySet(catalog['BeginDates'])
+    mer.sort(keys, cmpBeginDate) #n*log(n)
     contador = 0
 
-    for key in lt.iterator(keys):
+    for key in lt.iterator(keys): # O(n)
         if int(key) >= int(beginDate) and int(key) <= int(endDate):
             año = mp.get(catalog['BeginDates'], key)
             value = me.getValue(año)
             contador += value['size']
-            for artist in lt.iterator(value['artists']):
+            for artist in lt.iterator(value['artists']): #O(#de obras de la fecha)
                 lt.addLast(InRange,artist)
 
-    InRangeSorted = SortbyBeginDate(InRange) #n*log(n) 
-    return InRangeSorted, contador
+    return InRange, contador
 
 def getCronologicalArtwork (catalog, first, last):
     """
@@ -420,20 +425,20 @@ def getCronologicalArtwork (catalog, first, last):
     InRange = lt.newList('ARRAY_LIST')
 
     keys = mp.keySet(catalog['DatesAcquired'])
+    mer.sort(keys, cmpDateAcquired) #n*log(n)
     contador = 0
     purchased = 0
 
-    for key in lt.iterator(keys):
+    for key in lt.iterator(keys): #o(n)
         if key >= first and key <= last:
             año = mp.get(catalog['DatesAcquired'], key)
             value = me.getValue(año)
             contador += value['size']
             purchased += value['purchase']
-            for art in lt.iterator(value['artworks']):
+            for art in lt.iterator(value['artworks']): #O(#de obras de la fecha)
                 lt.addLast(InRange,art)
 
-    InRangeSorted = SortbyDateAcquired(InRange) #n*log(n)
-    return InRangeSorted, contador, purchased
+    return InRange, contador, purchased
 
 def getArtist(catalog, name):
     """
@@ -528,7 +533,6 @@ def getNationalityandArtwork(catalog):
     last = getLast(top, 3)
     return sorted_list, first, last, lt.size(top), nat
     
-
 def getArworkByDepartment (catalog, departamento):
     """
     Req 5
@@ -541,7 +545,7 @@ def getArworkByDepartment (catalog, departamento):
         -catalog: Catalogo del museo MoMA
     return:
         -tuple: 
-            - TAD Lista: lista de obras pertenecientes al departamento
+            - TAD Lista: lista de obras pertenecientes al departamento ordenado por Date
             - Int: el numero total de obras
             - Int: suma del costo de trasporte de cada obra
             - Int: suma de los pesos de las obras
@@ -549,10 +553,15 @@ def getArworkByDepartment (catalog, departamento):
     depto = mp.get(catalog['Departments'],departamento)
     value = me.getValue(depto)
     ltArtworks = value['artworks']
+    
+    LtSortbyDate = SortbyDate(ltArtworks)
+
     size = value['size']
     cost = value['cost']
     weight = value['weight']
-    return ltArtworks, size, cost, weight
+    return LtSortbyDate, size, cost, weight
+
+
 
 # Funciones utilizadas para comparar elementos dentro de una lista
 def compareMapArtMedium (medium, entry):
@@ -624,6 +633,12 @@ def cmpArtworkByDateAcquired(artwork1, artwork2):
 
 def cmpArtworkByTransCost(artwork1, artwork2): 
     return artwork1['TransCost'] > artwork2['TransCost']
+
+def cmpDateAcquired(date1, date2):
+    return (date1) < (date2)
+
+def cmpBeginDate (date1, date2):
+    return int(date1) < int(date2)
 
 # Funciones de ordenamiento
 

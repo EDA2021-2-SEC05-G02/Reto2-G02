@@ -213,13 +213,12 @@ def PrintReq5 (departamento, ArtworkDepartment):
     print("REMEMBER! NOT all MoMA's data is complete !!! .... These are estimates.")
     print("Estimated cargo weight (kg):", round(ArtworkDepartment[3],3))
     print("Estimated cargo cost (USD):", round(ArtworkDepartment[2],3))
-    LtSortbyDate = controller.SortbyDate(ArtworkDepartment[0])
     print("\nThe TOP 5 oldest items to transport are:")
     if ArtworkDepartment[1] >=6:
-        TopOldest = controller.getFirst(LtSortbyDate, 5)
+        TopOldest = controller.getFirst(ArtworkDepartment[0], 5)
         printArtworkTable(TopOldest)
     else:
-        printArtworkTable(LtSortbyDate)
+        printArtworkTable(ArtworkDepartment[0])
     
     LtSortbyCost = controller.SortbyCost(ArtworkDepartment[0])
     print("\nThe TOP 5 most expensive items to transport are:")
@@ -241,6 +240,8 @@ while True:
     printMenu()
     inputs = int(input('Seleccione una opción para continuar\n'))
     if inputs == 1:     #carga de datos
+        start = tm.process_time()
+
         print("Inicializando Catálogo ....")
         catalog = controller.initCatalog()
         print("Cargando información de los archivos ....")
@@ -248,16 +249,26 @@ while True:
         print('Obras de Arte cargadas:',lt.size(catalog['Artworks']))
         print('Artistas cargados:',lt.size(catalog['Artists']))
 
+        end = tm.process_time()
+        total_time = (end - start) #*1000
+        print("The time it took to execute the requirement was:", total_time ,"mseg\n")
+
     elif inputs == 2:   #req 1
-        
+        start = tm.process_time()
+
         beginDate = int(input("Ingrese el año inicial: "))
         endDate = int(input("Ingrese el año final: "))
 
         InRange = controller.getCronologicalArtist(catalog,beginDate,endDate)
         PrintReq1(beginDate, endDate, InRange)
+
+        end = tm.process_time()
+        total_time = (end - start)*1000
+        print("The time it took to execute the requirement was:", total_time ,"mseg\n")
         
     elif inputs == 3:   #req 2
-        
+        start = tm.process_time()
+
         firstY=int(input("Año incial (AAAA): "))
         firstM=int(input("Mes incial: "))
         firstD=int(input("Dia inicial: "))
@@ -271,8 +282,13 @@ while True:
         InRange = controller.getCronologicalArtwork(catalog, first, last)
         PrintReq2(first, last, InRange)
 
+        end = tm.process_time()
+        total_time = (end - start)*1000
+        print("The time it took to execute the requirement was:", total_time ,"mseg\n")
+
     elif inputs == 4:   #req 3
-        
+        start = tm.process_time()
+
         artistName= input("Ingrese el nombre de la/el artista: ")
         artistInfo = controller.getArtist(catalog, artistName.lower())
         if not artistInfo:
@@ -285,8 +301,13 @@ while True:
         mediumTop, size = controller.getMediumInfo(artistInfo[0])
         PrintReq3(artistInfo[0], mediumTop, size, artistInfo[1], artistName)
 
+        end = tm.process_time()
+        total_time = (end - start)*1000
+        print("The time it took to execute the requirement was:", total_time ,"mseg\n")
+
     elif inputs == 5:   #req 4
-        
+        start = tm.process_time()
+
         nacionalidad = controller.getNationalityandArtwork(catalog)
         List_Nationality = nacionalidad[0]
         First = nacionalidad[1]
@@ -294,11 +315,21 @@ while True:
         Top = nacionalidad[3]
         Nat = nacionalidad[4]
         PrintReq4(List_Nationality, First, Last, Top, Nat)
+
+        end = tm.process_time()
+        total_time = (end - start)*1000
+        print("The time it took to execute the requirement was:", total_time ,"mseg\n")
         
     elif inputs == 6:   #req 5
+        start = tm.process_time()
+
         departamento = input("Ingrese el nombre del departamento del museo: ")
         ArtworkDepartment = controller.getArworkByDepartment(catalog, departamento.lower())
         PrintReq5(departamento, ArtworkDepartment)
+
+        end = tm.process_time()
+        total_time = (end - start)*1000
+        print("The time it took to execute the requirement was:", total_time ,"mseg\n")
 
     elif inputs == 7:   #req 6
         
