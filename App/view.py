@@ -166,18 +166,18 @@ def PrintReq2 (first, last, InRange):
             print("The artworks in the range are...")
             printArtworkTable(InRange[0])
 
-def PrintReq3 (mediumList, mediumTop, size, id, artistName):
+def PrintReq3 (mediumMap, mediumTop, size, id, artistName):
     print("="*15, " Req No. 3 Inputs ", "="*15)
     print("Examine the work of the artist named: "+artistName+"\n")
     print("="*15, " Req No. 3 Answer ", "="*15)
     print(artistName, "with MoMA ID",id, "has", size, "pieces in her/his name at the museum.")
     if size != 0:
-        print("There are" ,mp.size(mediumList), "different mediums/techniques in her/his work.\n")
-        PrintArtistMedium(mediumList)
+        print("There are" ,mp.size(mediumMap), "different mediums/techniques in her/his work.\n")
+        PrintArtistMedium(mediumMap)
 
-        numPieces = mp.get(mediumList, mediumTop)['value']['size']
+        numPieces = mp.get(mediumMap, mediumTop)['value']['size']
         print("\nHis/her most used Medium/Technique is:", mediumTop , "with", numPieces, "pieces.")
-        artistArt = mp.get(mediumList, mediumTop)['value']['artworks']
+        artistArt = mp.get(mediumMap, mediumTop)['value']['artworks']
 
         if numPieces >=6:
             first = controller.getFirst(artistArt,3)
