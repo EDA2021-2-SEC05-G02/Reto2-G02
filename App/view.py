@@ -25,7 +25,6 @@ import sys
 import controller
 from DISClib.ADT import list as lt
 from DISClib.ADT import map as mp
-#from DISClib.DataStructures import mapentry as me
 assert cf
 import datetime as dt
 import prettytable
@@ -48,6 +47,7 @@ def printMenu():
     print("4- Req 3: Clasificar obras de un artista por técnica")
     print("5- Req 4: Clasificar obras por la nacionalidad de sus creadores")
     print("6- Req 5: Transportar obras de un departamento")
+    print("0- Salir")
     # print("7- Req 6: Encontrar los artistas más prolíficos del museo")
 
 # Funciones de inicializacion
@@ -207,27 +207,17 @@ def PrintReq4 (nacionalidad, First, Last, Top, Nat):
 
 def PrintReq5 (departamento, ArtworkDepartment):
     print("="*15, " Req No. 5 Inputs ", "="*15)
-    print("Estimete the cost to transport all artifacts in " + departamento + " MoMA's Departament")
+    print("Estimate the cost to transport all artifacts in " + departamento + " MoMA's Departament")
     print("="*15, " Req No. 5 Answer ", "="*15)
     print("The MoMA is going to transport", ArtworkDepartment[1], "from the",departamento)
     print("REMEMBER! NOT all MoMA's data is complete !!! .... These are estimates.")
     print("Estimated cargo weight (kg):", round(ArtworkDepartment[3],3))
     print("Estimated cargo cost (USD):", round(ArtworkDepartment[2],3))
+
     print("\nThe TOP 5 oldest items to transport are:")
-    if ArtworkDepartment[1] >=6:
-        TopOldest = controller.getFirst(ArtworkDepartment[0], 5)
-        printArtworkTable(TopOldest)
-    else:
-        printArtworkTable(ArtworkDepartment[0])
-    
-    LtSortbyCost = controller.SortbyCost(ArtworkDepartment[0])
+    printArtworkTable(ArtworkDepartment[0])
     print("\nThe TOP 5 most expensive items to transport are:")
-    if ArtworkDepartment[1] >=6:
-        TopExpensive = controller.getFirst(LtSortbyCost, 5)
-        printArtworkTable(TopExpensive)
-    else:
-        printArtworkTable(LtSortbyCost)
-    
+    printArtworkTable(ArtworkDepartment[4])
 
 def PrintReq6 ():
     pass
@@ -250,8 +240,8 @@ while True:
         print('Artistas cargados:',lt.size(catalog['Artists']))
 
         end = tm.process_time()
-        total_time = (end - start) #*1000
-        print("The time it took to execute the requirement was:", total_time ,"mseg\n")
+        total_time = (end - start)
+        print("The time it took to execute the requirement was:", total_time*1000 ,"mseg ->",total_time, "seg\n")
 
     elif inputs == 2:   #req 1
         start = tm.process_time()
@@ -263,8 +253,8 @@ while True:
         PrintReq1(beginDate, endDate, InRange)
 
         end = tm.process_time()
-        total_time = (end - start)*1000
-        print("The time it took to execute the requirement was:", total_time ,"mseg\n")
+        total_time = (end - start)
+        print("The time it took to execute the requirement was:", total_time*1000 ,"mseg ->",total_time, "seg\n")
         
     elif inputs == 3:   #req 2
         start = tm.process_time()
@@ -283,8 +273,8 @@ while True:
         PrintReq2(first, last, InRange)
 
         end = tm.process_time()
-        total_time = (end - start)*1000
-        print("The time it took to execute the requirement was:", total_time ,"mseg\n")
+        total_time = (end - start)
+        print("The time it took to execute the requirement was:", total_time*1000 ,"mseg ->",total_time, "seg\n")
 
     elif inputs == 4:   #req 3
         start = tm.process_time()
@@ -302,8 +292,8 @@ while True:
         PrintReq3(artistInfo[0], mediumTop, size, artistInfo[1], artistName)
 
         end = tm.process_time()
-        total_time = (end - start)*1000
-        print("The time it took to execute the requirement was:", total_time ,"mseg\n")
+        total_time = (end - start)
+        print("The time it took to execute the requirement was:", total_time*1000 ,"mseg ->",total_time, "seg\n")
 
     elif inputs == 5:   #req 4
         start = tm.process_time()
@@ -317,8 +307,8 @@ while True:
         PrintReq4(List_Nationality, First, Last, Top, Nat)
 
         end = tm.process_time()
-        total_time = (end - start)*1000
-        print("The time it took to execute the requirement was:", total_time ,"mseg\n")
+        total_time = (end - start)
+        print("The time it took to execute the requirement was:", total_time*1000 ,"mseg ->",total_time, "seg\n")
         
     elif inputs == 6:   #req 5
         start = tm.process_time()
@@ -328,8 +318,8 @@ while True:
         PrintReq5(departamento, ArtworkDepartment)
 
         end = tm.process_time()
-        total_time = (end - start)*1000
-        print("The time it took to execute the requirement was:", total_time ,"mseg\n")
+        total_time = (end - start)
+        print("The time it took to execute the requirement was:", total_time*1000 ,"mseg ->",total_time, "seg\n")
 
     elif inputs == 7:   #req 6
         

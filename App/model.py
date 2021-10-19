@@ -555,11 +555,14 @@ def getArworkByDepartment (catalog, departamento):
     ltArtworks = value['artworks']
     
     LtSortbyDate = SortbyDate(ltArtworks)
+    TopDate = getFirst(LtSortbyDate, 5)
+    LtSortbyCost = SortbyCost(ltArtworks)
+    TopCost = getFirst(LtSortbyCost, 5)
 
     size = value['size']
     cost = value['cost']
     weight = value['weight']
-    return LtSortbyDate, size, cost, weight
+    return TopDate, size, cost, weight, TopCost
 
 
 
