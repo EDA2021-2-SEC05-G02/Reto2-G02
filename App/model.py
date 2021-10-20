@@ -61,11 +61,11 @@ def newCatalog():
     catalog = {'Artworks': None,
                'Artists': None,
                'ArtistsNames':None,
+               'ArtistsId':None,
                'ArtistsWorks':None,
                'DatesAcquired': None,
                'Departments': None,
                'BeginDates': None,
-               'Mediums': None,
                'Nationality':None}
 
     catalog['Artworks'] = lt.newList('ARRAY_LIST')
