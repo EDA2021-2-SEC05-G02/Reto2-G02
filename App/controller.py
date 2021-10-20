@@ -95,6 +95,12 @@ def getFirst(catalog, num):
     """
     return model.getFirst(catalog, num)
 
+def getMediumSize(mediumMap, medium):
+    return model.getMediumSize(mediumMap, medium)
+
+def getMapArtList (map, medium):
+    return model.getMapArtList(map, medium)
+
 def getCronologicalArtist(indice, beginDate, endDate):
     """
     Req 1

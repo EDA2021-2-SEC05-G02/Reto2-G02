@@ -175,9 +175,9 @@ def PrintReq3 (mediumMap, mediumTop, size, id, artistName):
         print("There are" ,mp.size(mediumMap), "different mediums/techniques in her/his work.\n")
         PrintArtistMedium(mediumMap)
 
-        numPieces = mp.get(mediumMap, mediumTop)['value']['size']
+        numPieces = controller.getMediumSize(mediumMap, mediumTop)
         print("\nHis/her most used Medium/Technique is:", mediumTop , "with", numPieces, "pieces.")
-        artistArt = mp.get(mediumMap, mediumTop)['value']['artworks']
+        artistArt = controller.getMapArtList(mediumMap, mediumTop)
 
         if numPieces >=6:
             first = controller.getFirst(artistArt,3)

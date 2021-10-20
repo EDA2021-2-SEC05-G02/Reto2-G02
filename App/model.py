@@ -564,7 +564,13 @@ def getArworkByDepartment (catalog, departamento):
     weight = value['weight']
     return TopDate, size, cost, weight, TopCost
 
+#Funciones Auxiliares
 
+def getMediumSize(mediumMap, medium):
+    return mp.get(mediumMap, medium)['value']['size']
+
+def getMapArtList (mediumMap, medium):
+    return mp.get(mediumMap, medium)['value']['artworks']
 
 # Funciones utilizadas para comparar elementos dentro de una lista
 def compareMapArtMedium (medium, entry):
